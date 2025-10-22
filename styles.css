@@ -1,0 +1,28 @@
+*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:'Prompt',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fafafa;color:#222}
+.topbar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#fff;border-bottom:1px solid #eee;z-index:10}
+.brand{display:flex;align-items:center;gap:10px}
+.hex{width:20px;height:20px;background:#ff6a00;clip-path:polygon(25% 6%,75% 6%,100% 50%,75% 94%,25% 94%,0 50%)}
+.title{font-weight:700}
+.badge{font-size:12px;font-weight:600;background:#ffe5d1;color:#c24a00;border-radius:12px;padding:2px 8px;margin-left:8px}
+.user-area{display:flex;align-items:center;gap:10px}
+.container{max-width:980px;margin:16px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 16px 8px;margin-bottom:16px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid .span2{grid-column:span 2}
+label{display:flex;flex-direction:column;gap:6px;font-size:14px}
+input,select,textarea{padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:14px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,.12)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn-primary{background:#ff6a00;color:#fff}
+.btn-line{background:#06C755;color:#fff}
+.btn-ghost{background:transparent;color:#444;border:1px solid #ddd}
+.actions{display:flex;align-items:center;gap:12px;margin-top:12px}
+.muted{color:#777;font-size:12px}
+.bold{font-weight:600}
+.userCard{display:flex;align-items:center;gap:10px}
+.userCard .avatar{width:32px;height:32px;border-radius:50%}
+.hidden{display:none !important}
+.footer{padding:16px;text-align:center;color:#777;font-size:12px}
+details.details{margin-top:8px}
+details.details summary{cursor:pointer;font-weight:600}
+@media (max-width:680px){.grid{grid-template-columns:1fr}}
