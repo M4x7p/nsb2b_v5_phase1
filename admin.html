@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Issue Invite — NSB2B</title>
+  <link href="styles.css" rel="stylesheet" />
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Prompt,Arial,sans-serif;background:#fafafa;color:#222;margin:0}
+    .container{max-width:880px;margin:16px auto;padding:0 16px}
+    .card{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px;margin:16px 0;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    label{display:flex;flex-direction:column;gap:6px;font-size:14px}
+    input,select{padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-size:14px}
+    input:focus,select:focus{outline:none;border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,.12)}
+    .actions{display:flex;align-items:center;gap:12px;margin-top:12px}
+    .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .btn-primary{background:#ff6a00;color:#fff}
+    .btn-ghost{background:transparent;color:#444;border:1px solid #ddd}
+    .muted{color:#777;font-size:12px}
+    .hidden{display:none !important}
+    .result a{word-break:break-all}
+    @media (max-width:680px){.grid{grid-template-columns:1fr}}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .badge{font-size:12px;font-weight:700;background:#ffe5d1;color:#c24a00;border-radius:999px;padding:3px 8px}
+  </style>
+  <script type="module">
+    // --- Minimal CONFIG just for this admin tool ---
+    export const CONFIG = {
+      ISSUE_INVITE_FLOW_URL: "https://5a1c2d740043e072baa147741b6585.82.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ece5092430e4cf0906baac6baabf545/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=gY8eWTXRi5Qkk7JJ8IjyWXkiU-lZ45rXgb9bosGu9WY"
+    };
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <h2>ออกโค้ดเชิญ (IssueInvite)</h2>
+      <span class="badge">Admin tool</span>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <label>Team
+          <select id="team">
+            <option>A</option><option>B</option><option>C</option><option>D</option>
+          </select>
+        </label>
+        <label>Branch
+          <input id="branch" placeholder="เช่น NS" />
+        </label>
+
+        <label>Max Uses
+          <input id="maxUses" type="number" min="1" value="1" />
+        </label>
+        <label>Expires in (days)
+          <input id="expiresInDays" type="number" min="1" value="7" />
+        </label>
+
+        <label>Issued By
+          <input id="issuedBy" value="Admin" />
+        </label>
+        <label>Notes
+          <input id="notes" placeholder="บันทึกเหตุผล/รอบเชิญ" />
+        </label>
+
+        <label>Prefix
+          <input id="prefix" value="INV-" />
+        </label>
+        <label>Base Web URL
+          <input id="baseUrl" value="https://m4x7p.github.io/nsb2b_v5_phase1/" />
+        </label>
+
+        <label>Admin Token (X-Admin-Token)
+          <input id="adminToken" placeholder="กรอกรหัสลับที่ Flow ตรวจ" />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="btnIssue" class="btn btn-primary">ออกโค้ด</button>
+        <button id="btnCopy" class="btn btn-ghost" disabled>คัดลอกลิงก์</button>
+        <span id="status" class="muted"></span>
+      </div>
+    </div>
+
+    <div id="result" class="card hidden result">
+      <div><b>Invite Code:</b> <span id="outCode">—</span></div>
+      <div><b>URL:</b> <a id="outUrl" href="#" target="_blank">—</a></div>
+      <div><b>Expires:</b> <span id="outExp">—</span></div>
+      <div><b>Status:</b> <span id="outStatus">—</span></div>
+    </div>
+
+    <div class="card muted">
+      <div><b>CORS ที่ต้องตั้งใน Flow IssueInvite</b></div>
+      <div>Access-Control-Allow-Origin: https://m4x7p.github.io</div>
+      <div>Access-Control-Allow-Headers: Content-Type, X-Admin-Token</div>
+      <div>Access-Control-Allow-Methods: POST, OPTIONS</div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { CONFIG } from './admin.html'; // self-module trick to access CONFIG above
+
+    const $ = s => document.querySelector(s);
+    const btnIssue = $('#btnIssue');
+    const btnCopy  = $('#btnCopy');
+    const statusEl = $('#status');
+
+    btnIssue.addEventListener('click', async () => {
+      const payload = {
+        team: $('#team').value,
+        branch: $('#branch').value.trim(),
+        maxUses: Number($('#maxUses').value || 1),
+        expiresInDays: Number($('#expiresInDays').value || 7),
+        issuedBy: $('#issuedBy').value.trim(),
+        notes: $('#notes').value.trim(),
+        prefix: $('#prefix').value || 'INV-',
+        baseWebUrl: $('#baseUrl').value.trim()
+      };
+      const token = $('#adminToken').value.trim();
+      statusEl.textContent = 'กำลังออกโค้ด...';
+      btnIssue.disabled = true;
+      btnCopy.disabled = true;
+      try {
+        const r = await fetch(CONFIG.ISSUE_INVITE_FLOW_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
+          body: JSON.stringify(payload)
+        });
+        const data = await r.json();
+        if (!r.ok || !data.ok) throw new Error(data?.message || 'ออกโค้ดไม่สำเร็จ');
+
+        document.getElementById('outCode').textContent = data.inviteCode || '—';
+        const urlEl = document.getElementById('outUrl');
+        urlEl.textContent  = data.inviteUrl || '—';
+        urlEl.href         = data.inviteUrl || '#';
+        document.getElementById('outExp').textContent  = data.expiresAtUTC || '—';
+        document.getElementById('outStatus').textContent = data.status || '—';
+
+        document.getElementById('result').classList.remove('hidden');
+        statusEl.textContent = 'สำเร็จ';
+        btnCopy.disabled = !data.inviteUrl;
+        btnCopy.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(data.inviteUrl);
+            statusEl.textContent = 'คัดลอกแล้ว';
+          } catch (_) {
+            statusEl.textContent = 'คัดลอกไม่สำเร็จ — เลือกและกด Ctrl/Cmd+C แทน';
+          }
+        };
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent = '❌ ' + (e?.message || e);
+      } finally {
+        btnIssue.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
