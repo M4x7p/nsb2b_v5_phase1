@@ -3,152 +3,70 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NS Small B2B — v5 Phase 1</title>
-
-  <!-- Font & Styles -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
-
-  <!-- LIFF SDK -->
+  <title>NSB2B</title>
+  <link rel="icon" href="./dohome_logo.jpg?v=3">
+  <link rel="stylesheet" href="./styles.css?v=2025-10-26-2">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="./dohome_logo.jpg" alt="DoHome" class="logo">
-      <div class="title">
-        NS Small B2B <span class="badge">v5 • Phase 1</span>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <img src="./dohome_logo.jpg?v=3" alt="DoHome" class="logo">
+        <div class="title">NSB2B</div>
       </div>
-    </div>
-
-    <div class="user-area">
-      <button id="btnLogin" class="btn btn-line">
-  <img src="./line.png" alt="LINE" class="icon" width="20" height="20" />
-  Login with LINE
-      </button>
-
-      <div id="userCard" class="userCard hidden" aria-live="polite">
-        <img id="userAvatar" class="avatar" alt="avatar">
-        <div class="userInfo">
-          <div id="userName" class="bold"></div>
-          <div id="userMeta" class="muted"></div>
-        </div>
-        <button id="btnLogout" class="btn btn-ghost">ออกจากระบบ</button>
+      <div class="header-actions">
+        <button id="btnLogout" class="btn btn-outline hidden">ออกจากระบบ</button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="container">
+    <!-- การ์ดแจ้งให้ล็อกอิน -->
     <section id="authNotice" class="card">
-      <h2>ล็อกอินก่อนเริ่มงาน</h2>
-      <p>กด “เข้าสู่ระบบด้วย LINE” เพื่อยืนยันตัวตน (allowlist พนักงานเท่านั้น)</p>
+      <h2 class="card-title">เข้าสู่ระบบ</h2>
+      <p class="muted mb-4">ล็อกอินด้วย LINE เพื่อใช้งานแบบเต็มระบบ</p>
+      <button id="btnLogin" class="btn btn-primary full-sm">
+        <img src="./line.png?v=3" alt="LINE" class="icon"> Login with LINE
+      </button>
     </section>
 
+    <!-- การ์ดผู้ใช้ (หลังล็อกอิน) -->
+    <section id="userCard" class="card hidden">
+      <div class="user">
+        <img id="userAvatar" src="" alt="avatar">
+        <div>
+          <div id="userName" class="name">User</div>
+          <div id="userMeta" class="meta">team – role</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ฟอร์มหลัก -->
     <section id="formSection" class="card hidden">
-      <h2>ส่งข้อมูลหน้างาน (Submit Visit)</h2>
+      <h2 class="card-title">แบบฟอร์มบันทึก</h2>
 
-      <form id="visitForm" novalidate>
-        <div class="grid">
-          <label>
-            วันที่
-            <input type="date" id="date" required>
-          </label>
-
-          <label>
-            ทีม (A–D)
-            <select id="team" required>
-              <option value="">— เลือกทีม —</option>
-              <option>A</option><option>B</option><option>C</option><option>D</option>
-            </select>
-          </label>
-
-          <label>
-            รายชื่อผู้ออกหน้างาน
-            <input type="text" id="staff" placeholder="เช่น แม็กซ์" required>
-          </label>
-
-          <label>
-            ชื่อลูกค้า
-            <input type="text" id="customer" required>
-          </label>
-
-          <label>
-            เบอร์โทร
-            <input type="tel" id="phone" placeholder="08xxxxxxxx" required>
-          </label>
-
-          <label class="span2">
-            หน้างาน/สถานที่
-            <input type="text" id="site" placeholder="เช่น โครงการบ้านจัดสรรฯ">
-          </label>
+      <!-- ตัวอย่างช่อง (คง id/class เดิมของคุณได้เลย) -->
+      <div class="form-grid">
+        <div class="field col-6">
+          <label for="branch">สาขา</label>
+          <input type="text" id="branch" placeholder="เช่น NS">
         </div>
-
-        <details class="details">
-          <summary>รายละเอียดเพิ่มเติม</summary>
-          <div class="grid">
-            <label>
-              ประเภทธุรกิจ
-              <select id="businessType">
-                <option value="">— เลือก —</option>
-                <option>ผู้รับเหมา</option>
-                <option>เจ้าของบ้าน</option>
-                <option>ร้านค้าวัสดุ</option>
-                <option>อื่น ๆ</option>
-              </select>
-            </label>
-
-            <label>
-              สินค้าที่ใช้/สนใจ
-              <input type="text" id="products" placeholder="เช่น ปูน, กระเบื้อง, สี">
-            </label>
-
-            <label>
-              ยอดประมาณการ (บาท)
-              <input type="number" id="estAmount" min="0" step="1" inputmode="numeric">
-            </label>
-
-            <label>
-              ร้านที่ลูกค้าซื้อ
-              <input type="text" id="shop" placeholder="เช่น DoHome NS">
-            </label>
-
-            <label class="span2">
-              รายละเอียด
-              <textarea id="details" rows="3" placeholder="บันทึกสิ่งที่คุย/ข้อเสนอ/ติดตาม"></textarea>
-            </label>
-
-            <label>
-              Lat,Lng
-              <input type="text" id="latlon" placeholder="15.69123,100.12345">
-            </label>
-
-            <label>
-              ตำบล
-              <input type="text" id="subdistrict">
-            </label>
-          </div>
-        </details>
-
-        <div class="actions">
-          <button type="submit" class="btn btn-primary" id="btnSubmit">
-            ส่งข้อมูล
-          </button>
-          <span id="formStatus" class="muted" role="status" aria-live="polite"></span>
+        <div class="field col-6">
+          <label for="note">หมายเหตุ</label>
+          <input type="text" id="note" placeholder="">
         </div>
-      </form>
+      </div>
+
+      <div class="mt-4">
+        <button id="btnSubmit" class="btn btn-primary">บันทึกข้อมูล</button>
+      </div>
+      <p class="small mt-4">* ระบบจะส่งข้อมูลไปยัง Power Automate</p>
     </section>
-  </main>
+  </div>
 
-  <footer class="footer">
-    <span>© 2025 NS Small B2B — Phase 1</span>
-  </footer>
-
-  <!-- app modules -->
-  <script type="module" src="./config.js"></script>
-  <script type="module" src="./auth.js"></script>
-  <script type="module" src="./api.js"></script>
-  <script type="module" src="./app.js"></script>
+  <!-- โมดูลแยกไฟล์ (ไม่แตะ logic ของคุณ) -->
+  <script type="module" src="./config.js?v=2025-10-26-2"></script>
+  <script type="module" src="./auth.js?v=2025-10-26-2"></script>
+  <script type="module" src="./api.js?v=2025-10-26-2"></script>
+  <script type="module" src="./app.js?v=2025-10-26-2"></script>
 </body>
 </html>

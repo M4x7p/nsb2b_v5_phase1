@@ -1,257 +1,122 @@
 /* =========================================================
-   NSB2B Webapp – Compact Clean UI
-   - เน้นอ่านง่าย คอนทราสต์ดี ใช้ได้ทั้งมือถือ/เดสก์ท็อป
-   - ไม่ยุ่งกับ logic/JS: ปรับเฉพาะหน้าตา + utility class
+   NSB2B – Minimal Orange UI (clean + teeny vibe)
    ========================================================= */
-
-/* ---------- Design tokens ---------- */
 :root{
-  --brand-orange: #f26122;          /* DoHome-ish */
-  --brand-orange-700:#d55216;
-  --brand-orange-50:#fff4ed;
+  --orange: #f26122;
+  --orange-700:#d55216;
+  --bg:#fafafa;
+  --card:#ffffff;
+  --text:#101113;
+  --muted:#6b7280;
+  --border:#e8eaf0;
+  --focus:#2563eb;
 
-  --line-green: #00c300;            /* LINE button */
-  --line-green-700:#00a600;
+  --radius:14px;
+  --r-sm:10px;
 
-  --bg: #f6f7fb;                    /* app background */
-  --card: #ffffff;
-  --text: #101113;
-  --muted: #6b7280;                 /* gray-500 */
-  --border: #e5e7eb;
-  --focus: #2563eb;                 /* blue-600 */
-
-  --shadow: 0 8px 24px rgba(16,17,19,.06), 0 2px 8px rgba(16,17,19,.04);
-
-  --radius: 14px;
-  --radius-sm: 10px;
-
-  --space-1: .25rem;
-  --space-2: .5rem;
-  --space-3: .75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-
-  --icon-size: 20px;                 /* ขนาดไอคอนปุ่ม */
+  --s-2:.5rem; --s-3:.75rem; --s-4:1rem; --s-5:1.25rem; --s-6:1.5rem; --s-8:2rem;
 }
 
-/* ---------- Base ---------- */
-*{ box-sizing:border-box }
-html,body{ height:100% }
+*{box-sizing:border-box}
+html,body{height:100%}
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
                Roboto, "Helvetica Neue", Arial, "Noto Sans Thai", "Noto Sans", sans-serif;
   color:var(--text);
-  background:
-    radial-gradient(1200px 600px at 10% -10%, #ffffff 20%, rgba(255,255,255,0) 70%),
-    radial-gradient(800px 400px at 120% 10%, #fff8f3 20%, rgba(255,255,255,0) 70%),
-    var(--bg);
-  line-height:1.5;
+  background: var(--bg);
+  line-height:1.55;
 }
 
-/* ภาพไม่หลุดกรอบ */
-img{ max-width:100%; height:auto; display:block }
+/* utilities */
+.hidden{display:none !important}
+.center{text-align:center}
+.muted{color:var(--muted)}
+.mt-4{margin-top:var(--s-4)} .mb-4{margin-bottom:var(--s-4)}
+.full{width:100%}
+img{max-width:100%;height:auto;display:block}
 
-/* Utility */
-.hidden{ display:none !important }
-.muted{ color:var(--muted) }
-.center{ text-align:center }
-.mt-4{ margin-top:var(--space-4) }
-.mb-4{ margin-bottom:var(--space-4) }
-.gap-4{ gap:var(--space-4) }
-
-/* ---------- Layout ---------- */
-.container{
-  max-width: 960px;
-  margin: 0 auto;
-  padding: clamp(16px, 2.5vw, 28px);
-}
-
+/* layout */
+.container{max-width:880px;margin:0 auto;padding:clamp(16px,2.8vw,28px)}
 .header{
-  display:flex; align-items:center; justify-content:space-between;
-  gap: var(--space-4);
-  padding: var(--space-4) 0 var(--space-6);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);
+  margin-bottom:var(--s-6);
 }
+.brand{display:flex;align-items:center;gap:var(--s-3)}
+.brand .logo{width:40px;height:40px;object-fit:contain;border-radius:10px}
+.brand .title{font-weight:800;letter-spacing:.2px;font-size:clamp(1.05rem,2vw,1.35rem)}
+.header-actions{display:flex;align-items:center;gap:10px}
 
-.brand{
-  display:flex; align-items:center; gap: var(--space-3);
-  font-weight:800; letter-spacing:.2px;
-}
-
-.brand .logo{
-  width: 44px; height: 44px; object-fit:contain;
-  border-radius:12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.06);
-}
-
-.brand .title{
-  font-size: clamp(1.05rem, 2.1vw, 1.35rem);
-}
-
-/* ---------- Card ---------- */
+/* card */
 .card{
   background:var(--card);
   border:1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: clamp(16px, 2.2vw, 22px);
+  border-radius:var(--radius);
+  padding:clamp(16px,2.2vw,22px);
+  box-shadow:0 4px 18px rgba(16,17,19,.05);
 }
+.card + .card{margin-top:var(--s-6)}
+.card-title{font-weight:700;font-size:1.05rem;margin:0 0 .6rem}
 
-.card + .card{ margin-top: var(--space-6) }
-
-.card-header{
-  display:flex; align-items:center; justify-content:space-between;
-  gap: var(--space-3); margin-bottom: var(--space-3);
-}
-
-.card-title{
-  font-weight:700; font-size:1.05rem;
-}
-
-/* ---------- Buttons ---------- */
+/* buttons */
 .btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  gap: 8px;
-  padding: 10px 14px;
-  font-weight:600;
-  border-radius: var(--radius-sm);
-  border:1px solid transparent;
-  background:#111; color:#fff;
-  cursor:pointer;
-  transition: transform .06s ease, filter .15s ease, box-shadow .15s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:10px 14px;border-radius:12px;border:1px solid transparent;
+  background:#111;color:#fff;font-weight:600;cursor:pointer;
+  transition:transform .06s ease, filter .15s ease, background .15s ease;
 }
-.btn:hover{ filter: brightness(.96) }
-.btn:active{ transform: translateY(1px) }
-.btn:disabled{ opacity:.55; pointer-events:none }
+.btn:hover{filter:brightness(.96)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55;pointer-events:none}
+.btn-primary{background:var(--orange)}
+.btn-primary:hover{background:var(--orange-700)}
+.btn-outline{background:#fff;color:#111;border-color:var(--border)}
+.btn-outline:hover{background:#f9fafb}
 
-.btn-primary{
-  background: var(--brand-orange);
-}
-.btn-primary:hover{ background: var(--brand-orange-700) }
+/* LINE icon (เล็ก) */
+.icon{width:18px;height:18px;object-fit:contain}
 
-.btn-outline{
-  background:#fff; color:#111; border-color:var(--border);
+/* form */
+.form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--s-4)}
+.field{grid-column:span 12}
+@media(min-width:640px){
+  .col-6{grid-column:span 6}
+  .col-4{grid-column:span 4}
+  .col-3{grid-column:span 3}
 }
-.btn-outline:hover{ background:#f9fafb }
-
-.btn-line{
-  background: var(--line-green);
+label{display:block;font-size:.9rem;font-weight:600;margin-bottom:.45rem}
+input[type="text"],input[type="number"],input[type="date"],
+input[type="datetime-local"],select,textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border);
+  border-radius:10px;background:#fff;font:inherit;color:var(--text);
+  transition:border-color .15s, box-shadow .15s;
 }
-.btn-line:hover{ background: var(--line-green-700) }
-
-/* ขนาดไอคอนในปุ่ม (เช่น LINE) */
-.btn .icon{
-  width: var(--icon-size);
-  height: var(--icon-size);
-  object-fit: contain;
-}
-
-/* ---------- Forms ---------- */
-.form-grid{
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--space-4);
-}
-.field{ grid-column: span 12 }
-@media (min-width: 640px){
-  .field.col-6{ grid-column: span 6 }
-  .field.col-4{ grid-column: span 4 }
-  .field.col-3{ grid-column: span 3 }
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--focus); box-shadow:0 0 0 3px rgba(37,99,235,.15); outline:none;
 }
 
-label{
-  display:block; font-size:.9rem; font-weight:600; color:#111;
-  margin-bottom: .45rem;
+/* user card */
+.user{
+  display:flex;align-items:center;gap:12px;
 }
-input[type="text"],
-input[type="number"],
-input[type="date"],
-input[type="datetime-local"],
-select, textarea{
-  width:100%;
-  border:1px solid var(--border);
-  background:#fff;
-  padding: 9px 12px;
-  border-radius: 10px;
-  font: inherit;
-  color:var(--text);
-  outline: none;
-  transition: box-shadow .15s ease, border-color .15s ease;
+.user img{
+  width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)
 }
-textarea{ min-height: 96px; resize: vertical }
+.user .name{font-weight:700}
+.user .meta{color:var(--muted);font-size:.9rem}
 
-input:focus, select:focus, textarea:focus{
-  border-color: var(--focus);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.15);
-}
+/* table (ถ้ามี) */
+.table-responsive{overflow:auto;border-radius:var(--radius)}
+table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
+thead th{background:#fff4ed;color:#111;border-bottom:1px solid var(--border);padding:10px 12px;text-align:left}
+tbody td{padding:10px 12px;border-top:1px solid var(--border)}
+tbody tr:nth-child(even){background:#fafafa}
 
-/* Help text / notice */
-.notice{
-  display:flex; align-items:flex-start; gap:10px;
-  padding:10px 12px;
-  border:1px dashed var(--border);
-  border-radius: 10px;
-  background: #fff;
-  color: var(--muted);
-}
+/* footer text */
+.small{font-size:.85rem;color:var(--muted);}
 
-/* ---------- Tables ---------- */
-.table-responsive{ overflow:auto; border-radius: var(--radius) }
-table{
-  width:100%;
-  border-collapse: separate;
-  border-spacing:0;
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius: var(--radius);
-  overflow:hidden;
-}
-thead th{
-  text-align:left;
-  font-size:.9rem;
-  background: var(--brand-orange-50);
-  color:#111;
-  padding: 10px 12px;
-  border-bottom:1px solid var(--border);
-}
-tbody td{
-  padding: 10px 12px;
-  border-top:1px solid var(--border);
-}
-tbody tr:nth-child(odd){ background:#fff }
-tbody tr:nth-child(even){ background:#fafafa }
-
-/* ---------- Badges ---------- */
-.badge{
-  display:inline-block;
-  padding:.22rem .5rem;
-  font-size:.75rem;
-  border-radius:999px;
-  border:1px solid transparent;
-}
-.badge-success{ background:#e8faf0; color:#05603a; border-color:#b7e7cb }
-.badge-danger{  background:#fef2f2; color:#991b1b; border-color:#fecaca }
-.badge-warn{    background:#fff7ed; color:#92400e; border-color:#fed7aa }
-
-/* ---------- User card (หลังล็อกอิน) ---------- */
-.user-card{
-  display:flex; align-items:center; gap:12px;
-}
-.user-card img{
-  width:48px; height:48px; border-radius: 50%;
-  object-fit: cover;
-  border:1px solid var(--border);
-}
-
-/* ---------- Footer / small text ---------- */
-.small{ font-size:.85rem; color:var(--muted) }
-
-/* ---------- Responsive tweaks ---------- */
-@media (max-width: 420px){
-  :root{ --icon-size: 18px }
-  .header{ padding-bottom: var(--space-4) }
-  .btn{ width:100% } /* ปุ่มเต็มแถวบนมือถือ */
+/* mobile */
+@media(max-width:420px){
+  .btn.full-sm{width:100%}
 }
