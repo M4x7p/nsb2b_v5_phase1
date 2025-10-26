@@ -1,12 +1,10 @@
 // api.js
-import { CONFIG } from './config.js?v=2025-10-26-7';
+import { CONFIG } from './config.js?v=2025-10-26-8';
 
-// อ่าน session จาก sessionStorage (ใช้กับ endpoint อื่น ถ้ามี)
 function readSession() {
   try {
     const raw = sessionStorage.getItem('nsb2b.session');
-    if (!raw) return { sessionKey:null, user:null };
-    return JSON.parse(raw) || { sessionKey:null, user:null };
+    return raw ? JSON.parse(raw) : { sessionKey:null, user:null };
   } catch {
     return { sessionKey:null, user:null };
   }
@@ -21,6 +19,9 @@ function authHeaders() {
 }
 
 export async function submitVisit(payload) {
+  if (!CONFIG.SUBMIT_FLOW_URL) {
+    throw new Error('SUBMIT_FLOW_URL ไม่ได้ตั้งค่าใน config.js');
+  }
   const res = await fetch(CONFIG.SUBMIT_FLOW_URL, {
     method: 'POST',
     headers: authHeaders(),
@@ -33,8 +34,10 @@ export async function submitVisit(payload) {
   return data;
 }
 
-// === ใช้ในหน้า Admin: ออกโค้ดเชิญ ===
 export async function createInvite(payload, adminToken) {
+  if (!CONFIG.ISSUE_INVITE_FLOW_URL) {
+    throw new Error('ISSUE_INVITE_FLOW_URL ไม่ได้ตั้งค่าใน config.js');
+  }
   const res = await fetch(CONFIG.ISSUE_INVITE_FLOW_URL, {
     method: 'POST',
     headers: {
