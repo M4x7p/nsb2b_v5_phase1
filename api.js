@@ -1,7 +1,7 @@
 // api.js
-import { CONFIG } from './config.js';
+import { CONFIG } from './config.js?v=2025-10-26-7';
 
-// อ่าน session จาก sessionStorage โดยไม่ต้องพึ่ง auth.js
+// อ่าน session จาก sessionStorage (ใช้กับ endpoint อื่น ถ้ามี)
 function readSession() {
   try {
     const raw = sessionStorage.getItem('nsb2b.session');
@@ -33,8 +33,8 @@ export async function submitVisit(payload) {
   return data;
 }
 
-// ออกโค้ดเชิญ (Admin)
-export async function issueInvite(payload, adminToken) {
+// === ใช้ในหน้า Admin: ออกโค้ดเชิญ ===
+export async function createInvite(payload, adminToken) {
   const res = await fetch(CONFIG.ISSUE_INVITE_FLOW_URL, {
     method: 'POST',
     headers: {
