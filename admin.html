@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NSB2B — Admin</title>
   <link rel="icon" href="./dohome_logo.jpg?v=3">
-  <link rel="stylesheet" href="./styles.css?v=2025-10-26-3">
+  <!-- อัปเลข v ทุกครั้งที่อัปโหลด เพื่อกันแคช -->
+  <link rel="stylesheet" href="./styles.css?v=2025-10-26-4">
 </head>
 <body>
   <div class="container">
@@ -48,14 +49,12 @@
 
         <div class="field col-6">
           <label for="prefix">Prefix</label>
-          <!-- ค่าเริ่มต้นที่อยาก “ค้างไว้” -->
           <input id="prefix" type="text" value="INV-">
           <div class="help">ตัวอย่าง: INV-, TEAM-</div>
         </div>
 
         <div class="field col-6">
           <label for="baseWebUrl">Base Web URL</label>
-          <!-- ค่าเริ่มต้นที่อยาก “ค้างไว้” -->
           <input id="baseWebUrl" type="text" value="https://m4x7p.github.io/nsb2b_v5_phase1/">
           <div class="help">เช่น https://m4x7p.github.io/nsb2b_v5_phase1/</div>
         </div>
@@ -104,59 +103,59 @@
   </div>
 
   <script type="module">
-    import { CONFIG } from './config.js?v=2025-10-26-3';
-    import { issueInvite } from './api.js?v=2025-10-26-3';
+    import { CONFIG } from './config.js?v=2025-10-26-4';
+    import { issueInvite } from './api.js?v=2025-10-26-4';
 
-    // --- elements
     const $ = (id)=>document.getElementById(id);
-    const team = $('team'), branch = $('branch'), maxUses = $('maxUses'), expiresInDays = $('expiresInDays');
-    const prefix = $('prefix'), baseWebUrl = $('baseWebUrl'), issuedBy = $('issuedBy'), notes = $('notes'), adminToken = $('adminToken');
-    const btnIssue = $('btnIssue'), resultCard = $('resultCard'), resultOk = $('resultOk'), resultErr = $('resultErr');
-    const outCode = $('outCode'), outUrl = $('outUrl'), btnCopy = $('btnCopy'), errMsg = $('errMsg');
 
-    // --- persist prefix/baseWebUrl in localStorage
-    const LS_KEYS = { prefix:'nsb2b.admin.prefix', base:'nsb2b.admin.baseUrl', issuedBy:'nsb2b.admin.issuedBy' };
+    const team=$('team'), branch=$('branch'), maxUses=$('maxUses'), expiresInDays=$('expiresInDays');
+    const prefix=$('prefix'), baseWebUrl=$('baseWebUrl'), issuedBy=$('issuedBy'), notes=$('notes'), adminToken=$('adminToken');
+    const btnIssue=$('btnIssue'), resultCard=$('resultCard'), resultOk=$('resultOk'), resultErr=$('resultErr');
+    const outCode=$('outCode'), outUrl=$('outUrl'), btnCopy=$('btnCopy'), errMsg=$('errMsg');
+
+    // จำค่า prefix/baseWebUrl/issuedBy
+    const LS_KEYS={ prefix:'nsb2b.admin.prefix', base:'nsb2b.admin.baseUrl', issuedBy:'nsb2b.admin.issuedBy' };
     try{
-      const p = localStorage.getItem(LS_KEYS.prefix); if(p) prefix.value = p;
-      const b = localStorage.getItem(LS_KEYS.base); if(b) baseWebUrl.value = b;
-      const i = localStorage.getItem(LS_KEYS.issuedBy); if(i) issuedBy.value = i;
+      const p=localStorage.getItem(LS_KEYS.prefix); if(p) prefix.value=p;
+      const b=localStorage.getItem(LS_KEYS.base); if(b) baseWebUrl.value=b;
+      const i=localStorage.getItem(LS_KEYS.issuedBy); if(i) issuedBy.value=i;
     }catch{}
 
     function savePrefs(){
       try{
-        localStorage.setItem(LS_KEYS.prefix, (prefix.value||'').trim());
-        localStorage.setItem(LS_KEYS.base, (baseWebUrl.value||'').trim());
-        localStorage.setItem(LS_KEYS.issuedBy, (issuedBy.value||'').trim());
+        localStorage.setItem(LS_KEYS.prefix,(prefix.value||'').trim());
+        localStorage.setItem(LS_KEYS.base,(baseWebUrl.value||'').trim());
+        localStorage.setItem(LS_KEYS.issuedBy,(issuedBy.value||'').trim());
       }catch{}
     }
 
-    function showOk(code, url){
+    function showOk(code,url){
       resultCard.classList.remove('hidden');
       resultOk.classList.remove('hidden');
       resultErr.classList.add('hidden');
-      outCode.textContent = code||'';
-      outUrl.value = url||'';
+      outCode.textContent=code||'';
+      outUrl.value=url||'';
     }
     function showErr(message){
       resultCard.classList.remove('hidden');
       resultOk.classList.add('hidden');
       resultErr.classList.remove('hidden');
-      errMsg.textContent = message || 'เกิดข้อผิดพลาด';
+      errMsg.textContent=message||'เกิดข้อผิดพลาด';
     }
 
     btnCopy.addEventListener('click', async ()=>{
       try{
         await navigator.clipboard.writeText(outUrl.value||'');
-        btnCopy.textContent = 'คัดลอกแล้ว';
+        btnCopy.textContent='คัดลอกแล้ว';
         setTimeout(()=>btnCopy.textContent='คัดลอกลิงก์',1200);
       }catch{}
     });
 
     btnIssue.addEventListener('click', async ()=>{
       try{
-        const token = (adminToken.value||'').trim();
+        const token=(adminToken.value||'').trim();
         if(!token){ showErr('กรุณาใส่ Admin token'); return; }
-        const payload = {
+        const payload={
           team: team.value,
           branch: (branch.value||'').trim(),
           maxUses: Math.max(1, parseInt(maxUses.value||'1',10)),
@@ -166,17 +165,15 @@
           issuedBy: (issuedBy.value||'').trim() || 'Admin',
           notes: (notes.value||'').trim()
         };
-
-        btnIssue.disabled = true;
+        btnIssue.disabled=true;
         savePrefs();
 
-        const data = await issueInvite(payload, token);
-        // data: { ok, inviteCode, inviteUrl, ... } (ตาม Flow)
+        const data=await issueInvite(payload, token);
         showOk(data.inviteCode, data.inviteUrl);
       }catch(err){
         showErr(err?.message || String(err));
       }finally{
-        btnIssue.disabled = false;
+        btnIssue.disabled=false;
       }
     });
   </script>

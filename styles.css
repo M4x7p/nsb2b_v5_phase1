@@ -74,8 +74,9 @@ img{max-width:100%;height:auto;display:block}
 .btn-outline:hover{background:#f9fafb}
 
 /* icons */
-.icon{width:18px;height:18px;object-fit:contain}
-.icon-line{width:18px;height:18px;object-fit:contain} /* กันกรณี class ชื่ออื่น */
+.icon, .icon-line{
+  width:18px;height:18px;object-fit:contain;flex:0 0 18px
+}
 
 /* form */
 .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--s-4)}
