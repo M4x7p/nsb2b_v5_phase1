@@ -4,26 +4,33 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NS Small B2B — v5 Phase 1</title>
+
+  <!-- Font & Styles -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
+
+  <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="hex"></div>
-      <div class="title">NS Small B2B <span class="badge">v5 • Phase 1</span></div>
+      <img src="./dohome_logo.jpg" alt="DoHome" class="logo">
+      <div class="title">
+        NS Small B2B <span class="badge">v5 • Phase 1</span>
+      </div>
     </div>
+
     <div class="user-area">
-      <!-- index.html (เฉพาะส่วนปุ่ม) -->
-<button id="btnLogin" class="btn btn-line">
-  <img src="./line.png" alt="LINE">เข้าสู่ระบบด้วย LINE
-</button>
-      <div id="userCard" class="userCard hidden">
+      <button id="btnLogin" class="btn btn-line">
+        <img src="./line.png" alt="LINE">เข้าสู่ระบบด้วย LINE
+      </button>
+
+      <div id="userCard" class="userCard hidden" aria-live="polite">
         <img id="userAvatar" class="avatar" alt="avatar">
-        <div>
+        <div class="userInfo">
           <div id="userName" class="bold"></div>
           <div id="userMeta" class="muted"></div>
         </div>
@@ -41,34 +48,36 @@
     <section id="formSection" class="card hidden">
       <h2>ส่งข้อมูลหน้างาน (Submit Visit)</h2>
 
-      <form id="visitForm">
+      <form id="visitForm" novalidate>
         <div class="grid">
           <label>
             วันที่
             <input type="date" id="date" required>
           </label>
+
           <label>
             ทีม (A–D)
             <select id="team" required>
               <option value="">— เลือกทีม —</option>
-              <option>A</option>
-              <option>B</option>
-              <option>C</option>
-              <option>D</option>
+              <option>A</option><option>B</option><option>C</option><option>D</option>
             </select>
           </label>
+
           <label>
             รายชื่อผู้ออกหน้างาน
             <input type="text" id="staff" placeholder="เช่น แม็กซ์" required>
           </label>
+
           <label>
             ชื่อลูกค้า
             <input type="text" id="customer" required>
           </label>
+
           <label>
             เบอร์โทร
             <input type="tel" id="phone" placeholder="08xxxxxxxx" required>
           </label>
+
           <label class="span2">
             หน้างาน/สถานที่
             <input type="text" id="site" placeholder="เช่น โครงการบ้านจัดสรรฯ">
@@ -88,26 +97,32 @@
                 <option>อื่น ๆ</option>
               </select>
             </label>
+
             <label>
               สินค้าที่ใช้/สนใจ
               <input type="text" id="products" placeholder="เช่น ปูน, กระเบื้อง, สี">
             </label>
+
             <label>
               ยอดประมาณการ (บาท)
               <input type="number" id="estAmount" min="0" step="1" inputmode="numeric">
             </label>
+
             <label>
               ร้านที่ลูกค้าซื้อ
               <input type="text" id="shop" placeholder="เช่น DoHome NS">
             </label>
+
             <label class="span2">
               รายละเอียด
               <textarea id="details" rows="3" placeholder="บันทึกสิ่งที่คุย/ข้อเสนอ/ติดตาม"></textarea>
             </label>
+
             <label>
               Lat,Lng
               <input type="text" id="latlon" placeholder="15.69123,100.12345">
             </label>
+
             <label>
               ตำบล
               <input type="text" id="subdistrict">
@@ -116,8 +131,10 @@
         </details>
 
         <div class="actions">
-          <button type="submit" class="btn btn-primary">ส่งข้อมูล</button>
-          <span id="formStatus" class="muted"></span>
+          <button type="submit" class="btn btn-primary" id="btnSubmit">
+            ส่งข้อมูล
+          </button>
+          <span id="formStatus" class="muted" role="status" aria-live="polite"></span>
         </div>
       </form>
     </section>
@@ -127,6 +144,7 @@
     <span>© 2025 NS Small B2B — Phase 1</span>
   </footer>
 
+  <!-- app modules -->
   <script type="module" src="./config.js"></script>
   <script type="module" src="./auth.js"></script>
   <script type="module" src="./api.js"></script>

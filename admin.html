@@ -23,8 +23,13 @@
     @media (max-width:680px){.grid{grid-template-columns:1fr}}
     .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
     .badge{font-size:12px;font-weight:700;background:#ffe5d1;color:#c24a00;border-radius:999px;padding:3px 8px}
-    .error{color:#b00020}
   </style>
+  <script type="module">
+    // --- Minimal CONFIG just for this admin tool ---
+    export const CONFIG = {
+      ISSUE_INVITE_FLOW_URL: "https://5a1c2d740043e072baa147741b6585.82.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1ece5092430e4cf0906baac6baabf545/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=gY8eWTXRi5Qkk7JJ8IjyWXkiU-lZ45rXgb9bosGu9WY"
+    };
+  </script>
 </head>
 <body>
   <div class="container">
@@ -32,8 +37,6 @@
       <h2>ออกโค้ดเชิญ (IssueInvite)</h2>
       <span class="badge">Admin tool</span>
     </div>
-
-    <div id="globalError" class="card hidden error"></div>
 
     <div class="card">
       <div class="grid">
@@ -50,7 +53,7 @@
           <input id="maxUses" type="number" min="1" value="1" />
         </label>
         <label>Expires in (days)
-          <input id="expiresInDays" type="number" min="1" value="1" />
+          <input id="expiresInDays" type="number" min="1" value="7" />
         </label>
 
         <label>Issued By
@@ -94,32 +97,15 @@
     </div>
   </div>
 
-  <!-- Load CONFIG then bind logic -->
   <script type="module">
-    import { CONFIG } from './config.js';
+    import { CONFIG } from './admin.html'; // self-module trick to access CONFIG above
 
     const $ = s => document.querySelector(s);
-    const statusEl = $('#status');
-    const globalError = $('#globalError');
-
-    window.addEventListener('error', (e) => {
-      globalError.classList.remove('hidden');
-      globalError.textContent = 'Script error: ' + (e.message || e.error || 'unknown');
-    });
-    window.addEventListener('unhandledrejection', (e) => {
-      globalError.classList.remove('hidden');
-      globalError.textContent = 'Promise error: ' + (e.reason?.message || e.reason || 'unknown');
-    });
-
     const btnIssue = $('#btnIssue');
     const btnCopy  = $('#btnCopy');
+    const statusEl = $('#status');
 
-    btnIssue?.addEventListener('click', async () => {
-      const token = $('#adminToken').value.trim();
-      if (!token) {
-        statusEl.textContent = 'กรุณากรอก Admin Token';
-        return;
-      }
+    btnIssue.addEventListener('click', async () => {
       const payload = {
         team: $('#team').value,
         branch: $('#branch').value.trim(),
@@ -130,6 +116,7 @@
         prefix: $('#prefix').value || 'INV-',
         baseWebUrl: $('#baseUrl').value.trim()
       };
+      const token = $('#adminToken').value.trim();
       statusEl.textContent = 'กำลังออกโค้ด...';
       btnIssue.disabled = true;
       btnCopy.disabled = true;
@@ -139,10 +126,8 @@
           headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token },
           body: JSON.stringify(payload)
         });
-        const data = await r.json().catch(() => ({}));
-        if (!r.ok || !data.ok) {
-          throw new Error(data?.message || ('HTTP ' + r.status));
-        }
+        const data = await r.json();
+        if (!r.ok || !data.ok) throw new Error(data?.message || 'ออกโค้ดไม่สำเร็จ');
 
         document.getElementById('outCode').textContent = data.inviteCode || '—';
         const urlEl = document.getElementById('outUrl');

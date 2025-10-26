@@ -1,52 +1,64 @@
 import { initAuth, getSession } from './auth.js';
 import { submitVisit } from './api.js';
 
-function $(sel){ return document.querySelector(sel); }
+initAuth().catch(console.error);
 
-function todayISO(){
-  const d = new Date();
-  const tzoffset = d.getTimezoneOffset() * 60000;
-  return new Date(Date.now()-tzoffset).toISOString().slice(0,10);
-}
-
-async function onSubmit(e){
-  e.preventDefault();
-  const s = getSession();
-  if (!s.sessionKey) { alert('กรุณาล็อกอินก่อน'); return; }
-
-  const payload = {
-    date: $('#date').value,
-    team: $('#team').value.trim(),
-    staff: $('#staff').value.trim(),
-    customer: $('#customer').value.trim(),
-    phone: $('#phone').value.trim(),
-    site: $('#site').value.trim(),
-    businessType: $('#businessType').value.trim(),
-    products: $('#products').value.trim(),
-    estAmount: Number($('#estAmount').value || 0),
-    shop: $('#shop').value.trim(),
-    details: $('#details').value.trim(),
-    latlon: $('#latlon').value.trim(),
-    subdistrict: $('#subdistrict').value.trim(),
-  };
-
-  const statusEl = document.getElementById('formStatus');
-  statusEl.textContent = 'กำลังส่ง...';
-
-  try {
-    const res = await submitVisit(payload);
-    statusEl.textContent = 'ส่งสำเร็จ #' + res.rowId;
-    // reset minimal
-    $('#customer').value=''; $('#phone').value=''; $('#details').value='';
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = '❌ ' + err.message;
-    alert('ส่งไม่สำเร็จ: ' + err.message);
+// helper ui
+function setBusy(btn, on, textIdle='ส่งข้อมูล'){
+  const status = document.getElementById('formStatus');
+  if(on){
+    btn.disabled = true;
+    btn.textContent = 'กำลังส่ง…';
+    status.textContent = 'กำลังส่งข้อมูลไปยังระบบ';
+  }else{
+    btn.disabled = false;
+    btn.textContent = textIdle;
   }
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
-  await initAuth();
-  document.getElementById('date').value = todayISO();
-  document.getElementById('visitForm').addEventListener('submit', onSubmit);
+const form = document.getElementById('visitForm');
+const teamSel = document.getElementById('team');
+const btnSubmit = document.getElementById('btnSubmit');
+
+// เติม team อัตโนมัติจาก session (ถ้ามี)
+(function primeTeam(){
+  const s = getSession();
+  if(s?.user?.team && teamSel && !teamSel.value){
+    teamSel.value = s.user.team;
+  }
+})();
+
+form?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const status = document.getElementById('formStatus');
+  const s = getSession();
+
+  const payload = {
+    date:       document.getElementById('date').value || '',
+    team:       document.getElementById('team').value || s?.user?.team || '',
+    staff:      document.getElementById('staff').value || '',
+    customer:   document.getElementById('customer').value || '',
+    phone:      document.getElementById('phone').value || '',
+    site:       document.getElementById('site').value || '',
+    businessType: document.getElementById('businessType').value || '',
+    products:   document.getElementById('products').value || '',
+    estAmount:  document.getElementById('estAmount').value || '',
+    shop:       document.getElementById('shop').value || '',
+    details:    document.getElementById('details').value || '',
+    latlon:     document.getElementById('latlon').value || '',
+    subdistrict:document.getElementById('subdistrict').value || ''
+  };
+
+  try{
+    setBusy(btnSubmit, true);
+    const resp = await submitVisit(payload);
+    status.textContent = 'ส่งสำเร็จ #' + (resp?.ref || '');
+    form.reset();
+    if(s?.user?.team) teamSel.value = s.user.team; // คืนค่า team เดิม
+  }catch(err){
+    console.error(err);
+    status.textContent = 'ส่งไม่สำเร็จ: ' + (err?.message || err);
+  }finally{
+    setBusy(btnSubmit, false);
+  }
 });
