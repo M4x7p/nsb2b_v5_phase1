@@ -30,6 +30,42 @@ details.details summary{cursor:pointer;font-weight:600}
 .btn-primary{background:#ff6a00;color:#fff}
 .btn-line{background:#06C755;color:#fff}
 .btn-ghost{background:transparent;color:#444;border:1px solid #ddd}
+/* ===== LINE icon sizing ===== */
+:root {
+  --icon-size: 20px;           /* ปรับค่าเดียวทุกที่ */
+}
+
+.btn-line {
+  background: #00c300;         /* LINE green */
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+
+.btn-line:hover {
+  filter: brightness(0.95);
+}
+
+.btn {
+  gap: 8px;                    /* ระยะห่างไอคอน-ข้อความ */
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+/* คุมขนาดรูปโลโก้ไม่ให้บึ้ม */
+.btn-line .icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  object-fit: contain;         /* ไม่บิดภาพ */
+  flex: 0 0 var(--icon-size);
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* จอเล็ก ปรับไอคอนลดนิดนึง */
+@media (max-width: 380px) {
+  :root { --icon-size: 18px; }
+}
 
 /* User card */
 .userCard{display:flex;align-items:center;gap:10px}
