@@ -1,97 +1,83 @@
+<!-- admin.html -->
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NSB2B – Admin</title>
-  <link rel="icon" href="./dohome_logo.jpg?v=3">
-  <link rel="stylesheet" href="./styles.css?v=2025-10-26-2">
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin • NSB2B</title>
+
+  <!-- กันแคช: อัปเดตเวอร์ชันใน config.js แล้วหน้าจะโหลดไฟล์ใหม่ -->
+  <link rel="stylesheet" href="./styles.css?v=1.0.3" />
 </head>
-<body>
-  <div class="container">
-    <header class="header">
-      <div class="brand">
-        <img src="./dohome_logo.jpg?v=3" alt="DoHome" class="logo">
-        <div class="title">NSB2B • Admin</div>
-      </div>
-      <div class="header-actions">
-        <button id="btnLogout" class="btn btn-outline hidden">ออกจากระบบ</button>
-      </div>
-    </header>
+<body id="adminPage" class="wrap">
+  <header class="nav">
+    <img src="./dohome_logo.jpg" class="brand" alt="DoHome" />
+    <div class="nav-right">
+      <a class="btn" href="./index.html">หน้าหลัก</a>
+    </div>
+  </header>
 
-    <section id="authNotice" class="card">
-      <h2 class="card-title">สิทธิ์ผู้ดูแล</h2>
-      <p class="muted mb-4">เข้าสู่ระบบด้วย LINE ที่มีสิทธิ์ Admin เพื่อสร้าง Invite</p>
-      <button id="btnLogin" class="btn btn-primary full-sm">
-        <img src="./line.png?v=3" alt="LINE" class="icon"> Login with LINE
-      </button>
-    </section>
+  <main class="container">
+    <section class="card">
+      <h2>สร้าง Invite Code</h2>
 
-    <section id="userCard" class="card hidden">
-      <div class="user">
-        <img id="userAvatar" src="" alt="avatar">
-        <div>
-          <div id="userName" class="name">Admin</div>
-          <div id="userMeta" class="meta">team – role</div>
-        </div>
-      </div>
-    </section>
-
-    <section id="formSection" class="card hidden">
-      <h2 class="card-title">ออกโค้ดเชิญ (Invite)</h2>
-
-      <div class="form-grid">
-        <div class="field col-3">
-          <label for="team">ทีม</label>
+      <div class="grid">
+        <label>
+          <span>Team</span>
           <select id="team">
             <option value="A">A</option><option value="B">B</option>
             <option value="C">C</option><option value="D">D</option>
           </select>
-        </div>
+        </label>
 
-        <div class="field col-3">
-          <label for="maxUses">จำนวนใช้ซ้ำ</label>
-          <input id="maxUses" type="number" value="1" min="1">
-        </div>
+        <label>
+          <span>Branch</span>
+          <input id="branch" type="text" placeholder="เช่น NS" />
+        </label>
 
-        <div class="field col-6">
-          <label for="prefix">Prefix</label>
-          <input id="prefix" type="text" placeholder="เช่น INV-">
-        </div>
+        <label>
+          <span>Max uses</span>
+          <input id="maxUses" type="number" min="1" step="1" value="1" />
+        </label>
 
-        <div class="field col-6">
-          <label for="branch">สาขา (ถ้ามี)</label>
-          <input id="branch" type="text">
-        </div>
+        <label>
+          <span>Expires in (days)</span>
+          <input id="expiresInDays" type="number" min="1" step="1" value="14" />
+        </label>
 
-        <div class="field col-6">
-          <label for="expiresInDays">หมดอายุใน (วัน)</label>
-          <input id="expiresInDays" type="number" value="14" min="1">
-        </div>
+        <label class="col-2">
+          <span>Prefix</span>
+          <!-- ค่าจะถูกเติมจาก CONFIG.DEFAULT_INVITE_PREFIX และจำไว้ใน localStorage -->
+          <input id="prefix" type="text" placeholder="INV-" />
+        </label>
 
-        <div class="field col-6">
-          <label for="baseWebUrl">Base Web URL</label>
-          <input id="baseWebUrl" type="text" placeholder="https://<user>.github.io/nsb2b/">
-        </div>
-
-        <div class="field col-12">
-          <label for="notes">หมายเหตุ</label>
-          <input id="notes" type="text">
-        </div>
+        <label class="col-2">
+          <span>Base Web URL</span>
+          <!-- ค่าจะถูกเติมจาก CONFIG.DEFAULT_BASE_WEB_URL และจำไว้ใน localStorage -->
+          <input id="baseWebUrl" type="url" placeholder="https://example.com/nsb2b/" />
+        </label>
       </div>
 
-      <div class="mt-4">
-        <button id="btnCreateInvite" class="btn btn-primary">สร้าง Invite</button>
+      <div class="actions">
+        <button id="btnCreateInvite" class="btn primary">สร้าง Invite</button>
       </div>
 
-      <div id="inviteResult" class="mt-4 small muted"></div>
+      <div id="resultBox" class="result hidden">
+        <div class="row">
+          <div>Invite code</div>
+          <code id="resultCode">-</code>
+        </div>
+        <div id="inviteUrl" class="row hidden">
+          <div>Invite URL</div>
+          <a id="resultLink" href="#" target="_blank" rel="noopener">เปิดลิงก์</a>
+        </div>
+      </div>
     </section>
-  </div>
+  </main>
 
-  <script type="module" src="./config.js?v=2025-10-26-2"></script>
-  <script type="module" src="./auth.js?v=2025-10-26-2"></script>
-  <script type="module" src="./api.js?v=2025-10-26-2"></script>
-  <script type="module" src="./app.js?v=2025-10-26-2"></script>
+  <!-- กันแคชด้วย query param -->
+  <script type="module" src="./config.js?v=1.0.3"></script>
+  <script type="module" src="./api.js?v=1.0.3"></script>
+  <script type="module" src="./app.js?v=1.0.3"></script>
 </body>
 </html>

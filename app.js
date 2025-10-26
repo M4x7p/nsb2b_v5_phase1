@@ -1,64 +1,86 @@
-import { initAuth, getSession } from './auth.js';
-import { submitVisit } from './api.js';
+// app.js (เฉพาะส่วน admin page)
+import { CONFIG } from './config.js';
+import { createInvite } from './api.js';
 
-initAuth().catch(console.error);
+function initAdminDefaults() {
+  const $ = (id) => document.getElementById(id);
 
-// helper ui
-function setBusy(btn, on, textIdle='ส่งข้อมูล'){
-  const status = document.getElementById('formStatus');
-  if(on){
-    btn.disabled = true;
-    btn.textContent = 'กำลังส่ง…';
-    status.textContent = 'กำลังส่งข้อมูลไปยังระบบ';
-  }else{
-    btn.disabled = false;
-    btn.textContent = textIdle;
-  }
+  const prefixEl     = $('prefix');
+  const baseWebEl    = $('baseWebUrl');
+  const teamEl       = $('team');
+  const branchEl     = $('branch');
+  const maxUsesEl    = $('maxUses');
+  const expiresEl    = $('expiresInDays');
+
+  // อ่านจาก localStorage หรือค่าเริ่มต้นจาก CONFIG
+  const savedPrefix  = localStorage.getItem('nsb2b.admin.prefix')
+                    || CONFIG.DEFAULT_INVITE_PREFIX
+                    || 'INV-';
+  const savedBaseUrl = localStorage.getItem('nsb2b.admin.baseWebUrl')
+                    || CONFIG.DEFAULT_BASE_WEB_URL
+                    || `${location.origin}/`;
+
+  if (prefixEl)  prefixEl.value  = savedPrefix;
+  if (baseWebEl) baseWebEl.value = savedBaseUrl;
+
+  // เก็บค่าทันทีเมื่อแก้ไข
+  prefixEl?.addEventListener('change', () => {
+    const val = (prefixEl.value || 'INV-').trim();
+    prefixEl.value = val || 'INV-';
+    localStorage.setItem('nsb2b.admin.prefix', prefixEl.value);
+  });
+  baseWebEl?.addEventListener('change', () => {
+    const val = (baseWebEl.value || '').trim();
+    localStorage.setItem('nsb2b.admin.baseWebUrl', val);
+  });
+
+  // ค่าเริ่มต้นอื่นๆ (กันลืมกรอก)
+  if (teamEl && !teamEl.value)     teamEl.value = 'A';
+  if (maxUsesEl && !maxUsesEl.value) maxUsesEl.value = '1';
+  if (expiresEl && !expiresEl.value) expiresEl.value = '14';
+
+  // กดปุ่ม “สร้าง Invite”
+  $('btnCreateInvite')?.addEventListener('click', async () => {
+    try {
+      $('resultBox')?.classList.add('hidden');
+      $('inviteUrl')?.classList.add('hidden');
+
+      const payload = {
+        team:           teamEl?.value || 'A',
+        branch:         branchEl?.value?.trim() || '',
+        maxUses:        parseInt(maxUsesEl?.value || '1', 10),
+        expiresInDays:  parseInt(expiresEl?.value || '14', 10),
+        prefix:         (prefixEl?.value || 'INV-').trim(),
+        baseWebUrl:     (baseWebEl?.value || '').trim()
+      };
+
+      // กันช่องว่าง/เครื่องหมาย / ซ้อนผิดที่
+      if (payload.baseWebUrl && !payload.baseWebUrl.endsWith('/')) {
+        payload.baseWebUrl += '/';
+      }
+
+      const data = await createInvite(payload);
+
+      // แสดงผลลิงก์
+      const url = data?.inviteUrl || '';
+      const code = data?.inviteCode || '';
+      $('resultCode').textContent = code || '-';
+      if (url) {
+        $('resultLink').href = url;
+        $('resultLink').textContent = url;
+        $('inviteUrl')?.classList.remove('hidden');
+      }
+      $('resultBox')?.classList.remove('hidden');
+    } catch (err) {
+      console.error('[createInvite error]', err);
+      alert(err?.message || 'สร้าง Invite ไม่สำเร็จ');
+    }
+  });
 }
 
-const form = document.getElementById('visitForm');
-const teamSel = document.getElementById('team');
-const btnSubmit = document.getElementById('btnSubmit');
-
-// เติม team อัตโนมัติจาก session (ถ้ามี)
-(function primeTeam(){
-  const s = getSession();
-  if(s?.user?.team && teamSel && !teamSel.value){
-    teamSel.value = s.user.team;
-  }
-})();
-
-form?.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const status = document.getElementById('formStatus');
-  const s = getSession();
-
-  const payload = {
-    date:       document.getElementById('date').value || '',
-    team:       document.getElementById('team').value || s?.user?.team || '',
-    staff:      document.getElementById('staff').value || '',
-    customer:   document.getElementById('customer').value || '',
-    phone:      document.getElementById('phone').value || '',
-    site:       document.getElementById('site').value || '',
-    businessType: document.getElementById('businessType').value || '',
-    products:   document.getElementById('products').value || '',
-    estAmount:  document.getElementById('estAmount').value || '',
-    shop:       document.getElementById('shop').value || '',
-    details:    document.getElementById('details').value || '',
-    latlon:     document.getElementById('latlon').value || '',
-    subdistrict:document.getElementById('subdistrict').value || ''
-  };
-
-  try{
-    setBusy(btnSubmit, true);
-    const resp = await submitVisit(payload);
-    status.textContent = 'ส่งสำเร็จ #' + (resp?.ref || '');
-    form.reset();
-    if(s?.user?.team) teamSel.value = s.user.team; // คืนค่า team เดิม
-  }catch(err){
-    console.error(err);
-    status.textContent = 'ส่งไม่สำเร็จ: ' + (err?.message || err);
-  }finally{
-    setBusy(btnSubmit, false);
+// ทำงานเฉพาะเมื่ออยู่บนหน้า admin.html (เช็ค element เฉพาะหน้า)
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('adminPage')) {
+    initAdminDefaults();
   }
 });
