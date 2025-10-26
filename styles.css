@@ -1,12 +1,12 @@
 /* =========================================================
-   NSB2B – Minimal Orange UI (clean + teeny vibe)
+   NSB2B – Minimal Orange UI (clean + teen vibe)
    ========================================================= */
 :root{
-  --orange: #f26122;
+  --orange:#f26122;
   --orange-700:#d55216;
   --bg:#fafafa;
   --card:#ffffff;
-  --text:#101113;
+  --text:#0f1115;
   --muted:#6b7280;
   --border:#e8eaf0;
   --focus:#2563eb;
@@ -24,12 +24,12 @@ body{
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
                Roboto, "Helvetica Neue", Arial, "Noto Sans Thai", "Noto Sans", sans-serif;
   color:var(--text);
-  background: var(--bg);
+  background:var(--bg);
   line-height:1.55;
 }
 
 /* utilities */
-.hidden{display:none !important}
+.hidden{display:none!important}
 .center{text-align:center}
 .muted{color:var(--muted)}
 .mt-4{margin-top:var(--s-4)} .mb-4{margin-bottom:var(--s-4)}
@@ -73,8 +73,9 @@ img{max-width:100%;height:auto;display:block}
 .btn-outline{background:#fff;color:#111;border-color:var(--border)}
 .btn-outline:hover{background:#f9fafb}
 
-/* LINE icon (เล็ก) */
+/* icons */
 .icon{width:18px;height:18px;object-fit:contain}
+.icon-line{width:18px;height:18px;object-fit:contain} /* กันกรณี class ชื่ออื่น */
 
 /* form */
 .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--s-4)}
@@ -97,26 +98,21 @@ input:focus,select:focus,textarea:focus{
 }
 
 /* user card */
-.user{
-  display:flex;align-items:center;gap:12px;
-}
-.user img{
-  width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)
-}
+.user{display:flex;align-items:center;gap:12px}
+.user img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
 .user .name{font-weight:700}
 .user .meta{color:var(--muted);font-size:.9rem}
 
-/* table (ถ้ามี) */
+/* table */
 .table-responsive{overflow:auto;border-radius:var(--radius)}
 table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
 thead th{background:#fff4ed;color:#111;border-bottom:1px solid var(--border);padding:10px 12px;text-align:left}
 tbody td{padding:10px 12px;border-top:1px solid var(--border)}
 tbody tr:nth-child(even){background:#fafafa}
 
-/* footer text */
-.small{font-size:.85rem;color:var(--muted);}
+/* helper */
+.small{font-size:.85rem;color:var(--muted)}
+.help{font-size:.85rem;color:var(--muted);margin-top:.3rem}
 
 /* mobile */
-@media(max-width:420px){
-  .btn.full-sm{width:100%}
-}
+@media(max-width:420px){ .btn.full-sm{width:100%} }

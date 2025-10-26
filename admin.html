@@ -1,83 +1,184 @@
-<!-- admin.html -->
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin • NSB2B</title>
-
-  <!-- กันแคช: อัปเดตเวอร์ชันใน config.js แล้วหน้าจะโหลดไฟล์ใหม่ -->
-  <link rel="stylesheet" href="./styles.css?v=1.0.3" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NSB2B — Admin</title>
+  <link rel="icon" href="./dohome_logo.jpg?v=3">
+  <link rel="stylesheet" href="./styles.css?v=2025-10-26-3">
 </head>
-<body id="adminPage" class="wrap">
-  <header class="nav">
-    <img src="./dohome_logo.jpg" class="brand" alt="DoHome" />
-    <div class="nav-right">
-      <a class="btn" href="./index.html">หน้าหลัก</a>
-    </div>
-  </header>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <img src="./dohome_logo.jpg?v=3" alt="DoHome" class="logo">
+        <div class="title">NSB2B / Admin</div>
+      </div>
+      <div class="header-actions">
+        <a href="./" class="btn btn-outline">กลับหน้าใช้งาน</a>
+      </div>
+    </header>
 
-  <main class="container">
     <section class="card">
-      <h2>สร้าง Invite Code</h2>
+      <h2 class="card-title">ออกโค้ดเชิญ (Invite Code)</h2>
 
-      <div class="grid">
-        <label>
-          <span>Team</span>
+      <div class="form-grid">
+        <div class="field col-3">
+          <label for="team">Team</label>
           <select id="team">
             <option value="A">A</option><option value="B">B</option>
             <option value="C">C</option><option value="D">D</option>
           </select>
-        </label>
+        </div>
 
-        <label>
-          <span>Branch</span>
-          <input id="branch" type="text" placeholder="เช่น NS" />
-        </label>
+        <div class="field col-3">
+          <label for="branch">Branch</label>
+          <input id="branch" type="text" placeholder="เช่น NS">
+        </div>
 
-        <label>
-          <span>Max uses</span>
-          <input id="maxUses" type="number" min="1" step="1" value="1" />
-        </label>
+        <div class="field col-3">
+          <label for="maxUses">Max uses</label>
+          <input id="maxUses" type="number" min="1" value="1">
+        </div>
 
-        <label>
-          <span>Expires in (days)</span>
-          <input id="expiresInDays" type="number" min="1" step="1" value="14" />
-        </label>
+        <div class="field col-3">
+          <label for="expiresInDays">Expires in (days)</label>
+          <input id="expiresInDays" type="number" min="1" value="14">
+        </div>
 
-        <label class="col-2">
-          <span>Prefix</span>
-          <!-- ค่าจะถูกเติมจาก CONFIG.DEFAULT_INVITE_PREFIX และจำไว้ใน localStorage -->
-          <input id="prefix" type="text" placeholder="INV-" />
-        </label>
+        <div class="field col-6">
+          <label for="prefix">Prefix</label>
+          <!-- ค่าเริ่มต้นที่อยาก “ค้างไว้” -->
+          <input id="prefix" type="text" value="INV-">
+          <div class="help">ตัวอย่าง: INV-, TEAM-</div>
+        </div>
 
-        <label class="col-2">
-          <span>Base Web URL</span>
-          <!-- ค่าจะถูกเติมจาก CONFIG.DEFAULT_BASE_WEB_URL และจำไว้ใน localStorage -->
-          <input id="baseWebUrl" type="url" placeholder="https://example.com/nsb2b/" />
-        </label>
+        <div class="field col-6">
+          <label for="baseWebUrl">Base Web URL</label>
+          <!-- ค่าเริ่มต้นที่อยาก “ค้างไว้” -->
+          <input id="baseWebUrl" type="text" value="https://m4x7p.github.io/nsb2b_v5_phase1/">
+          <div class="help">เช่น https://m4x7p.github.io/nsb2b_v5_phase1/</div>
+        </div>
+
+        <div class="field col-6">
+          <label for="issuedBy">Issued by</label>
+          <input id="issuedBy" type="text" placeholder="เช่น Admin">
+        </div>
+
+        <div class="field col-6">
+          <label for="notes">Notes</label>
+          <input id="notes" type="text" placeholder="บันทึกเพิ่มเติม (ถ้ามี)">
+        </div>
+
+        <div class="field col-6">
+          <label for="adminToken">Admin token</label>
+          <input id="adminToken" type="password" placeholder="ใส่รหัสสำหรับออกโค้ด">
+          <div class="help">ต้องตรงกับที่ตั้งใน Flow (header: X-Admin-Token)</div>
+        </div>
       </div>
 
-      <div class="actions">
-        <button id="btnCreateInvite" class="btn primary">สร้าง Invite</button>
-      </div>
-
-      <div id="resultBox" class="result hidden">
-        <div class="row">
-          <div>Invite code</div>
-          <code id="resultCode">-</code>
-        </div>
-        <div id="inviteUrl" class="row hidden">
-          <div>Invite URL</div>
-          <a id="resultLink" href="#" target="_blank" rel="noopener">เปิดลิงก์</a>
-        </div>
+      <div class="mt-4">
+        <button id="btnIssue" class="btn btn-primary">ออกโค้ด</button>
       </div>
     </section>
-  </main>
 
-  <!-- กันแคชด้วย query param -->
-  <script type="module" src="./config.js?v=1.0.3"></script>
-  <script type="module" src="./api.js?v=1.0.3"></script>
-  <script type="module" src="./app.js?v=1.0.3"></script>
+    <section id="resultCard" class="card hidden">
+      <h2 class="card-title">ผลลัพธ์</h2>
+      <div id="resultOk" class="hidden">
+        <p class="mb-4"><strong>Invite Code:</strong> <span id="outCode"></span></p>
+        <div class="form-grid">
+          <div class="field col-12">
+            <label for="outUrl">Invite URL</label>
+            <input id="outUrl" type="text" readonly>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button id="btnCopy" class="btn btn-outline">คัดลอกลิงก์</button>
+        </div>
+      </div>
+
+      <div id="resultErr" class="hidden">
+        <p class="muted" id="errMsg">เกิดข้อผิดพลาด</p>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { CONFIG } from './config.js?v=2025-10-26-3';
+    import { issueInvite } from './api.js?v=2025-10-26-3';
+
+    // --- elements
+    const $ = (id)=>document.getElementById(id);
+    const team = $('team'), branch = $('branch'), maxUses = $('maxUses'), expiresInDays = $('expiresInDays');
+    const prefix = $('prefix'), baseWebUrl = $('baseWebUrl'), issuedBy = $('issuedBy'), notes = $('notes'), adminToken = $('adminToken');
+    const btnIssue = $('btnIssue'), resultCard = $('resultCard'), resultOk = $('resultOk'), resultErr = $('resultErr');
+    const outCode = $('outCode'), outUrl = $('outUrl'), btnCopy = $('btnCopy'), errMsg = $('errMsg');
+
+    // --- persist prefix/baseWebUrl in localStorage
+    const LS_KEYS = { prefix:'nsb2b.admin.prefix', base:'nsb2b.admin.baseUrl', issuedBy:'nsb2b.admin.issuedBy' };
+    try{
+      const p = localStorage.getItem(LS_KEYS.prefix); if(p) prefix.value = p;
+      const b = localStorage.getItem(LS_KEYS.base); if(b) baseWebUrl.value = b;
+      const i = localStorage.getItem(LS_KEYS.issuedBy); if(i) issuedBy.value = i;
+    }catch{}
+
+    function savePrefs(){
+      try{
+        localStorage.setItem(LS_KEYS.prefix, (prefix.value||'').trim());
+        localStorage.setItem(LS_KEYS.base, (baseWebUrl.value||'').trim());
+        localStorage.setItem(LS_KEYS.issuedBy, (issuedBy.value||'').trim());
+      }catch{}
+    }
+
+    function showOk(code, url){
+      resultCard.classList.remove('hidden');
+      resultOk.classList.remove('hidden');
+      resultErr.classList.add('hidden');
+      outCode.textContent = code||'';
+      outUrl.value = url||'';
+    }
+    function showErr(message){
+      resultCard.classList.remove('hidden');
+      resultOk.classList.add('hidden');
+      resultErr.classList.remove('hidden');
+      errMsg.textContent = message || 'เกิดข้อผิดพลาด';
+    }
+
+    btnCopy.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(outUrl.value||'');
+        btnCopy.textContent = 'คัดลอกแล้ว';
+        setTimeout(()=>btnCopy.textContent='คัดลอกลิงก์',1200);
+      }catch{}
+    });
+
+    btnIssue.addEventListener('click', async ()=>{
+      try{
+        const token = (adminToken.value||'').trim();
+        if(!token){ showErr('กรุณาใส่ Admin token'); return; }
+        const payload = {
+          team: team.value,
+          branch: (branch.value||'').trim(),
+          maxUses: Math.max(1, parseInt(maxUses.value||'1',10)),
+          expiresInDays: Math.max(1, parseInt(expiresInDays.value||'14',10)),
+          prefix: (prefix.value||'').trim() || 'INV-',
+          baseWebUrl: (baseWebUrl.value||'').trim(),
+          issuedBy: (issuedBy.value||'').trim() || 'Admin',
+          notes: (notes.value||'').trim()
+        };
+
+        btnIssue.disabled = true;
+        savePrefs();
+
+        const data = await issueInvite(payload, token);
+        // data: { ok, inviteCode, inviteUrl, ... } (ตาม Flow)
+        showOk(data.inviteCode, data.inviteUrl);
+      }catch(err){
+        showErr(err?.message || String(err));
+      }finally{
+        btnIssue.disabled = false;
+      }
+    });
+  </script>
 </body>
 </html>
