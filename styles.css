@@ -1,84 +1,257 @@
-/* Base */
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:'Prompt',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fafafa;color:#222}
+/* =========================================================
+   NSB2B Webapp – Compact Clean UI
+   - เน้นอ่านง่าย คอนทราสต์ดี ใช้ได้ทั้งมือถือ/เดสก์ท็อป
+   - ไม่ยุ่งกับ logic/JS: ปรับเฉพาะหน้าตา + utility class
+   ========================================================= */
 
-/* Top bar */
-.topbar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#fff;border-bottom:1px solid #eee;z-index:10}
-.brand{display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;object-fit:contain;border-radius:6px}
-.title{font-weight:700}
-.badge{font-size:12px;font-weight:600;background:#ffe5d1;color:#c24a00;border-radius:12px;padding:2px 8px;margin-left:8px}
+/* ---------- Design tokens ---------- */
+:root{
+  --brand-orange: #f26122;          /* DoHome-ish */
+  --brand-orange-700:#d55216;
+  --brand-orange-50:#fff4ed;
 
-/* Layout */
-.user-area{display:flex;align-items:center;gap:10px}
-.container{max-width:980px;margin:16px auto;padding:0 16px}
-.card{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px 16px 8px;margin-bottom:16px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  --line-green: #00c300;            /* LINE button */
+  --line-green-700:#00a600;
 
-/* Form & controls */
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.grid .span2{grid-column:span 2}
-label{display:flex;flex-direction:column;gap:6px;font-size:14px}
-input,select,textarea{padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:14px;transition:box-shadow .15s,border-color .15s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,.12)}
-details.details{margin-top:8px}
-details.details summary{cursor:pointer;font-weight:600}
+  --bg: #f6f7fb;                    /* app background */
+  --card: #ffffff;
+  --text: #101113;
+  --muted: #6b7280;                 /* gray-500 */
+  --border: #e5e7eb;
+  --focus: #2563eb;                 /* blue-600 */
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;transition:transform .06s ease,opacity .15s}
-.btn:active{transform:translateY(1px)}
-.btn[disabled]{opacity:.6;cursor:not-allowed}
-.btn-primary{background:#ff6a00;color:#fff}
-.btn-line{background:#06C755;color:#fff}
-.btn-ghost{background:transparent;color:#444;border:1px solid #ddd}
-/* ===== LINE icon sizing ===== */
-:root {
-  --icon-size: 20px;           /* ปรับค่าเดียวทุกที่ */
+  --shadow: 0 8px 24px rgba(16,17,19,.06), 0 2px 8px rgba(16,17,19,.04);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --icon-size: 20px;                 /* ขนาดไอคอนปุ่ม */
 }
 
-.btn-line {
-  background: #00c300;         /* LINE green */
-  color: #fff;
-  border: none;
-  font-weight: 600;
+/* ---------- Base ---------- */
+*{ box-sizing:border-box }
+html,body{ height:100% }
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, "Noto Sans Thai", "Noto Sans", sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #ffffff 20%, rgba(255,255,255,0) 70%),
+    radial-gradient(800px 400px at 120% 10%, #fff8f3 20%, rgba(255,255,255,0) 70%),
+    var(--bg);
+  line-height:1.5;
 }
 
-.btn-line:hover {
-  filter: brightness(0.95);
+/* ภาพไม่หลุดกรอบ */
+img{ max-width:100%; height:auto; display:block }
+
+/* Utility */
+.hidden{ display:none !important }
+.muted{ color:var(--muted) }
+.center{ text-align:center }
+.mt-4{ margin-top:var(--space-4) }
+.mb-4{ margin-bottom:var(--space-4) }
+.gap-4{ gap:var(--space-4) }
+
+/* ---------- Layout ---------- */
+.container{
+  max-width: 960px;
+  margin: 0 auto;
+  padding: clamp(16px, 2.5vw, 28px);
 }
 
-.btn {
-  gap: 8px;                    /* ระยะห่างไอคอน-ข้อความ */
+.header{
+  display:flex; align-items:center; justify-content:space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0 var(--space-6);
+}
+
+.brand{
+  display:flex; align-items:center; gap: var(--space-3);
+  font-weight:800; letter-spacing:.2px;
+}
+
+.brand .logo{
+  width: 44px; height: 44px; object-fit:contain;
+  border-radius:12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.06);
+}
+
+.brand .title{
+  font-size: clamp(1.05rem, 2.1vw, 1.35rem);
+}
+
+/* ---------- Card ---------- */
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: clamp(16px, 2.2vw, 22px);
+}
+
+.card + .card{ margin-top: var(--space-6) }
+
+.card-header{
+  display:flex; align-items:center; justify-content:space-between;
+  gap: var(--space-3); margin-bottom: var(--space-3);
+}
+
+.card-title{
+  font-weight:700; font-size:1.05rem;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap: 8px;
   padding: 10px 14px;
-  border-radius: 10px;
+  font-weight:600;
+  border-radius: var(--radius-sm);
+  border:1px solid transparent;
+  background:#111; color:#fff;
+  cursor:pointer;
+  transition: transform .06s ease, filter .15s ease, box-shadow .15s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
 }
+.btn:hover{ filter: brightness(.96) }
+.btn:active{ transform: translateY(1px) }
+.btn:disabled{ opacity:.55; pointer-events:none }
 
-/* คุมขนาดรูปโลโก้ไม่ให้บึ้ม */
-.btn-line .icon {
+.btn-primary{
+  background: var(--brand-orange);
+}
+.btn-primary:hover{ background: var(--brand-orange-700) }
+
+.btn-outline{
+  background:#fff; color:#111; border-color:var(--border);
+}
+.btn-outline:hover{ background:#f9fafb }
+
+.btn-line{
+  background: var(--line-green);
+}
+.btn-line:hover{ background: var(--line-green-700) }
+
+/* ขนาดไอคอนในปุ่ม (เช่น LINE) */
+.btn .icon{
   width: var(--icon-size);
   height: var(--icon-size);
-  object-fit: contain;         /* ไม่บิดภาพ */
-  flex: 0 0 var(--icon-size);
-  display: inline-block;
-  vertical-align: middle;
+  object-fit: contain;
 }
 
-/* จอเล็ก ปรับไอคอนลดนิดนึง */
-@media (max-width: 380px) {
-  :root { --icon-size: 18px; }
+/* ---------- Forms ---------- */
+.form-grid{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-4);
+}
+.field{ grid-column: span 12 }
+@media (min-width: 640px){
+  .field.col-6{ grid-column: span 6 }
+  .field.col-4{ grid-column: span 4 }
+  .field.col-3{ grid-column: span 3 }
 }
 
-/* User card */
-.userCard{display:flex;align-items:center;gap:10px}
-.userCard .avatar{width:32px;height:32px;border-radius:50%;background:#f0f0f0}
-.bold{font-weight:600}
-.muted{color:#777;font-size:12px}
+label{
+  display:block; font-size:.9rem; font-weight:600; color:#111;
+  margin-bottom: .45rem;
+}
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="datetime-local"],
+select, textarea{
+  width:100%;
+  border:1px solid var(--border);
+  background:#fff;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font: inherit;
+  color:var(--text);
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+textarea{ min-height: 96px; resize: vertical }
 
-/* Footer */
-.footer{padding:16px;text-align:center;color:#777;font-size:12px}
+input:focus, select:focus, textarea:focus{
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+}
 
-.hidden{display:none !important}
+/* Help text / notice */
+.notice{
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 12px;
+  border:1px dashed var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--muted);
+}
 
-/* Mobile */
-@media (max-width:680px){
-  .grid{grid-template-columns:1fr}
+/* ---------- Tables ---------- */
+.table-responsive{ overflow:auto; border-radius: var(--radius) }
+table{
+  width:100%;
+  border-collapse: separate;
+  border-spacing:0;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  overflow:hidden;
+}
+thead th{
+  text-align:left;
+  font-size:.9rem;
+  background: var(--brand-orange-50);
+  color:#111;
+  padding: 10px 12px;
+  border-bottom:1px solid var(--border);
+}
+tbody td{
+  padding: 10px 12px;
+  border-top:1px solid var(--border);
+}
+tbody tr:nth-child(odd){ background:#fff }
+tbody tr:nth-child(even){ background:#fafafa }
+
+/* ---------- Badges ---------- */
+.badge{
+  display:inline-block;
+  padding:.22rem .5rem;
+  font-size:.75rem;
+  border-radius:999px;
+  border:1px solid transparent;
+}
+.badge-success{ background:#e8faf0; color:#05603a; border-color:#b7e7cb }
+.badge-danger{  background:#fef2f2; color:#991b1b; border-color:#fecaca }
+.badge-warn{    background:#fff7ed; color:#92400e; border-color:#fed7aa }
+
+/* ---------- User card (หลังล็อกอิน) ---------- */
+.user-card{
+  display:flex; align-items:center; gap:12px;
+}
+.user-card img{
+  width:48px; height:48px; border-radius: 50%;
+  object-fit: cover;
+  border:1px solid var(--border);
+}
+
+/* ---------- Footer / small text ---------- */
+.small{ font-size:.85rem; color:var(--muted) }
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 420px){
+  :root{ --icon-size: 18px }
+  .header{ padding-bottom: var(--space-4) }
+  .btn{ width:100% } /* ปุ่มเต็มแถวบนมือถือ */
 }
