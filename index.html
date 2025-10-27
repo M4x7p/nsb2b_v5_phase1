@@ -1,72 +1,114 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NSB2B</title>
-  <link rel="icon" href="./dohome_logo.jpg?v=3">
-  <link rel="stylesheet" href="./styles.css?v=2025-10-26-2">
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NS SMALL B2B</title>
+
+  <!-- Font: Prompt -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Base styles -->
+  <link rel="stylesheet" href="./styles.css?v=2025-10-26-9" />
+
+  <!-- Light theme override (ขาว–ส้ม) -->
+  <style>
+    body.theme-light{
+      --bg:#ffffff;
+      --card:#ffffff;
+      --text:#1d2430;
+      --muted:#6b7480;
+      --border:#eceff3;
+      --brand:#ff6b00;
+      --brand-600:#ff7f26;
+      background:#fff;
+    }
+    body{font-family:"Prompt",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial}
+    /* header & brand */
+    .header{background:#fff;border:1px solid var(--border)}
+    .logo{height:28px;width:auto;border-radius:6px;object-fit:contain}
+    /* LINE badge (ล็อกขนาดให้เล็กกว่าปุ่ม) */
+    .line-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;background:#06c7551a;border:1px solid #dcefe3;
+      font-weight:600;color:#1a1f2b
+    }
+    .line-icon{
+      height:18px; width:auto; display:inline-block; object-fit:contain;
+    }
+    /* login card spacing */
+    .login-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .btn-primary{color:#fff !important}
+    /* user card mini avatar */
+    .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+    .user-row{display:flex;align-items:center;gap:12px}
+    /* section surfaces */
+    .card{background:#fff}
+    /* keep links orange */
+    a{color:var(--brand)}
+  </style>
 </head>
-<body>
+<body class="theme-light">
   <div class="container">
+    <!-- Header -->
     <header class="header">
       <div class="brand">
-        <img src="./dohome_logo.jpg?v=3" alt="DoHome" class="logo">
-        <div class="title">NSB2B</div>
+        <img src="./dohome_logo.jpg?v=3" alt="DoHome" class="logo" />
+        <div class="title">NS SMALL B2B</div>
       </div>
       <div class="header-actions">
-        <button id="btnLogout" class="btn btn-outline hidden">ออกจากระบบ</button>
+        <a class="btn btn-outline" href="./admin.html">สำหรับผู้ดูแล</a>
       </div>
     </header>
 
-    <!-- การ์ดแจ้งให้ล็อกอิน -->
+    <!-- Auth Notice (ยังไม่ล็อกอิน) -->
     <section id="authNotice" class="card">
       <h2 class="card-title">เข้าสู่ระบบ</h2>
-      <p class="muted mb-4">ล็อกอินด้วย LINE เพื่อใช้งานแบบเต็มระบบ</p>
-      <button id="btnLogin" class="btn btn-primary full-sm">
-        <img src="./line.png?v=3" alt="LINE" class="icon"> Login with LINE
-      </button>
+      <p class="mb-4" style="color:var(--muted)">กรุณาเข้าสู่ระบบด้วย LINE เพื่อเริ่มใช้งาน</p>
+      <div class="login-actions">
+        <button id="btnLogin" class="btn btn-primary">
+          เข้าสู่ระบบด้วย LINE
+        </button>
+        <span class="line-badge">
+          <img src="./line.png?v=3" alt="LINE" class="line-icon" />
+          LINE Login
+        </span>
+      </div>
     </section>
 
-    <!-- การ์ดผู้ใช้ (หลังล็อกอิน) -->
+    <!-- User Card (แสดงหลังล็อกอินสำเร็จ) -->
     <section id="userCard" class="card hidden">
-      <div class="user">
-        <img id="userAvatar" src="" alt="avatar">
+      <h2 class="card-title">บัญชีของคุณ</h2>
+      <div class="user-row">
+        <img id="userAvatar" class="avatar" src="" alt="avatar" />
         <div>
-          <div id="userName" class="name">User</div>
-          <div id="userMeta" class="meta">team – role</div>
+          <div id="userName" style="font-weight:600">-</div>
+          <div id="userMeta" style="color:var(--muted);font-size:13px">-</div>
         </div>
+      </div>
+      <div class="mt-4">
+        <button id="btnLogout" class="btn btn-outline">ออกจากระบบ</button>
       </div>
     </section>
 
-    <!-- ฟอร์มหลัก -->
+    <!-- Main Form Section (ตัวอย่าง/พื้นที่ทำงานหลักของแอป) -->
     <section id="formSection" class="card hidden">
-      <h2 class="card-title">แบบฟอร์มบันทึก</h2>
-
-      <!-- ตัวอย่างช่อง (คง id/class เดิมของคุณได้เลย) -->
-      <div class="form-grid">
-        <div class="field col-6">
-          <label for="branch">สาขา</label>
-          <input type="text" id="branch" placeholder="เช่น NS">
-        </div>
-        <div class="field col-6">
-          <label for="note">หมายเหตุ</label>
-          <input type="text" id="note" placeholder="">
-        </div>
-      </div>
-
-      <div class="mt-4">
-        <button id="btnSubmit" class="btn btn-primary">บันทึกข้อมูล</button>
-      </div>
-      <p class="small mt-4">* ระบบจะส่งข้อมูลไปยัง Power Automate</p>
+      <h2 class="card-title">พร้อมใช้งาน</h2>
+      <p class="mb-4" style="color:var(--muted)">
+        ล็อกอินแล้วสามารถใช้งานฟอร์ม/เมนูหลักของแอปได้ในส่วนนี้
+      </p>
+      <!-- วางฟอร์มจริงของคุณในอนาคตได้ที่นี่ -->
     </section>
   </div>
 
-  <!-- โมดูลแยกไฟล์ (ไม่แตะ logic ของคุณ) -->
-  <script type="module" src="./config.js?v=2025-10-26-2"></script>
-  <script type="module" src="./auth.js?v=2025-10-26-2"></script>
-  <script type="module" src="./api.js?v=2025-10-26-2"></script>
-  <script type="module" src="./app.js?v=2025-10-26-2"></script>
+  <!-- LINE LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <!-- App scripts -->
+  <script type="module">
+    import { initAuth } from './auth.js?v=2025-10-26-9';
+    // เริ่มระบบล็อกอิน/แสดงผลผู้ใช้
+    initAuth();
+  </script>
 </body>
 </html>
