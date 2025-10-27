@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- สไตล์หลัก -->
-  <link rel="stylesheet" href="./styles.css?v=2025-10-27-1" />
+  <link rel="stylesheet" href="./styles.css?v=2025-10-27-2" />
 
   <!-- Theme/Font override ให้ปุ่มและอินพุตก็ใช้ Prompt -->
   <style>
@@ -35,7 +35,6 @@
     }
     @media (max-width:720px){ .grid-2{ grid-template-columns:1fr; } }
 
-    /* ปุ่มหลัก/เส้นขอบให้ลุค Prompt ชัดขึ้น */
     .btn{ font-weight:600; border-radius:10px; }
     .btn-primary{ background:var(--brand); border-color:var(--brand); }
     .btn-primary:hover{ background:var(--brand-600); border-color:var(--brand-600); }
@@ -106,13 +105,14 @@
 
         <div class="form-field">
           <label for="expiresInDays">อายุโค้ด (วัน)</label>
-          <input id="expiresInDays" type="number" class="input" min="1" step="1" value="1" />
+          <input id="expiresInDays" type="number" class="input" min="1" step="1" value="14" />
         </div>
       </div>
 
       <div class="mt-4" style="display:flex;gap:10px;flex-wrap:wrap">
         <button id="btnCreateInvite" class="btn btn-primary">สร้าง Invite</button>
-        <a class="btn btn-outline" href="./InviteCodes.xlsx" target="_blank" rel="noopener">เปิดไฟล์ InviteCodes.xlsx</a>
+        <!-- แก้จากลิงก์เปิดไฟล์ เป็น “คัดลอกลิงก์” ตามที่สั่ง -->
+        <button id="btnCopyTop" class="btn btn-outline" type="button">คัดลอกลิงก์</button>
       </div>
     </section>
 
@@ -137,32 +137,44 @@
   </div>
 
   <!-- สคริปต์หลักของหน้า Admin -->
-  <script type="module" src="./app.js?v=2025-10-27-1"></script>
+  <script type="module" src="./app.js?v=2025-10-27-2"></script>
 
-  <!-- ปุ่มคัดลอกลิงก์ (เสริมเล็กน้อย แยกจาก app.js เพื่อไม่รบกวนลอจิกเดิม) -->
+  <!-- สคริปต์เล็ก ๆ สำหรับปุ่มคัดลอก (ทั้งปุ่มบนและในผลลัพธ์) -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const linkEl = document.getElementById('resultLink');
-      const btnCopy = document.getElementById('btnCopyLink');
+      const linkEl   = document.getElementById('resultLink');
+      const btnCopy1 = document.getElementById('btnCopyLink'); // ปุ่มในผลลัพธ์
+      const btnCopy2 = document.getElementById('btnCopyTop');  // ปุ่มด้านบน
       const statusEl = document.getElementById('copyStatus');
 
-      function showStatus(msg){
-        if (!statusEl) return;
-        statusEl.textContent = msg || '';
-        clearTimeout(showStatus._t);
-        showStatus._t = setTimeout(()=> statusEl.textContent = '', 2000);
+      async function copyInviteLink() {
+        try {
+          const url = linkEl?.href || '';
+          if (!url || url === '#') {
+            // ยังไม่มีลิงก์ให้คัดลอก
+            toast('ยังไม่มีลิงก์ให้คัดลอก');
+            return;
+          }
+          await navigator.clipboard.writeText(url);
+          toast('คัดลอกลิงก์แล้ว');
+        } catch {
+          toast('คัดลอกไม่สำเร็จ');
+        }
       }
 
-      btnCopy?.addEventListener('click', async () => {
-        try{
-          const url = linkEl?.href || '';
-          if (!url || url === '#' ) { showStatus('ยังไม่มีลิงก์ให้คัดลอก'); return; }
-          await navigator.clipboard.writeText(url);
-          showStatus('คัดลอกลิงก์แล้ว');
-        }catch(e){
-          showStatus('คัดลอกไม่สำเร็จ');
+      function toast(msg) {
+        if (statusEl) {
+          statusEl.textContent = msg || '';
+          clearTimeout(toast._t);
+          toast._t = setTimeout(() => statusEl.textContent = '', 2000);
+        } else {
+          // กันกรณีไม่มี statusEl ก็ยังแจ้งเตือนด้วย alert ได้
+          if (msg) alert(msg);
         }
-      });
+      }
+
+      btnCopy1?.addEventListener('click', copyInviteLink);
+      btnCopy2?.addEventListener('click', copyInviteLink);
     });
   </script>
 </body>
