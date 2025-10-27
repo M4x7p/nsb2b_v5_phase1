@@ -1,128 +1,189 @@
-// auth.js — แนบ inviteCode อัตโนมัติ + export ฟังก์ชันให้ api.js เรียกใช้ได้
+// auth.js — ล็อกอินลื่น, รองรับลิงก์เชิญ, ไม่ต้องกดซ้ำ
 import { CONFIG } from './config.js';
 
 const state = {
   sessionKey: null,
-  user: null
+  user: null,
 };
+let authInFlight = false; // กันกดซ้ำ/ยิงซ้ำ
 
-// export ให้ api.js ใช้งาน (แก้ปัญหา "does not provide an export named 'getSession'")
-export function getSession(){ return state; }
+export function getSession() {
+  return state;
+}
 
-// ----------------- utils -----------------
-function getInviteCodeFromURL(){
-  try{
+// ---- ดึง inviteCode จากพารามิเตอร์ URL ----
+function getInviteCodeFromURL() {
+  try {
     const usp = new URLSearchParams(location.search);
     return (usp.get('invite') || '').trim();
-  }catch{ return ''; }
+  } catch {
+    return '';
+  }
 }
-function saveSession(sessionKey, user){
+
+// ---- เก็บ/โหลด session ----
+function persistSession(sessionKey, user) {
   state.sessionKey = sessionKey;
   state.user = user;
-  try{ sessionStorage.setItem('nsb2b.session', JSON.stringify({ sessionKey, user })); }catch{}
+  try {
+    sessionStorage.setItem('nsb2b.session', JSON.stringify({ sessionKey, user }));
+  } catch {}
 }
-function renderUser(user){
+function restoreSession() {
+  try {
+    const raw = sessionStorage.getItem('nsb2b.session');
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    state.sessionKey = data.sessionKey || null;
+    state.user = data.user || null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+// ---- แสดงผลผู้ใช้บนหน้า ----
+function renderUser(user) {
   const btnLogin   = document.getElementById('btnLogin');
   const userCard   = document.getElementById('userCard');
   const userAvatar = document.getElementById('userAvatar');
   const userName   = document.getElementById('userName');
   const userMeta   = document.getElementById('userMeta');
-  if(!user) return;
-  btnLogin?.classList.add('hidden');
-  userCard?.classList.remove('hidden');
-  if(userAvatar) userAvatar.src = user.pictureUrl || '';
-  if(userName)   userName.textContent = user.displayName || 'Unknown';
-  if(userMeta)   userMeta.textContent = `team ${user.team || '-'} • ${user.isAdmin ? 'Admin' : 'Member'}`;
-}
-
-// --------------- main init ----------------
-export async function initAuth(){
-  const btnLogin   = document.getElementById('btnLogin');
-  const btnLogout  = document.getElementById('btnLogout');
   const authNotice = document.getElementById('authNotice');
   const formSection= document.getElementById('formSection');
-  const userCard   = document.getElementById('userCard');
 
-  // Restore session
-  const saved = sessionStorage.getItem('nsb2b.session');
-  if(saved){
-    try{
-      const s = JSON.parse(saved);
-      state.sessionKey = s.sessionKey;
-      state.user = s.user;
-      renderUser(s.user);
-      authNotice?.classList.add('hidden');
-      formSection?.classList.remove('hidden');
-    }catch{}
-  }
+  if (!user) return;
 
-  btnLogin?.addEventListener('click', async ()=>{
-    const btn = btnLogin;
-    try{
-      if(!CONFIG.LIFF_ID || CONFIG.LIFF_ID.includes('YOUR_')){
-        alert('ยังไม่ได้ตั้งค่า LIFF_ID ใน config.js'); return;
-      }
+  btnLogin?.classList.add('hidden');
+  userCard?.classList.remove('hidden');
+  authNotice?.classList.add('hidden');
+  formSection?.classList.remove('hidden');
 
-      btn.disabled = true;
+  if (userAvatar) userAvatar.src = user.pictureUrl || '';
+  if (userName)   userName.textContent = user.displayName || 'Unknown';
+  if (userMeta)   userMeta.textContent = `team ${user.team || '-'} • ${user.isAdmin ? 'Admin' : 'Member'}`;
+}
 
-      // 1) init LIFF เสมอ
-      await liff.init({ liffId: CONFIG.LIFF_ID });
+// ---- เรียก AuthGate (แนบ inviteCode ทุกครั้ง) ----
+async function callAuthGate(profile) {
+  const inviteCode = getInviteCodeFromURL();
+  const payload = {
+    userId: profile.userId,
+    displayName: profile.displayName,
+    pictureUrl: profile.pictureUrl || '',
+    origin: location.origin,
+    inviteCode, // สำคัญ: ให้ Flow เช็คเชิญเมื่อยังไม่มีพนักงาน
+  };
 
-      // 2) ถ้ายังไม่ล็อกอิน → ส่งไปหน้า login
-      if(!liff.isLoggedIn()){
-        liff.login({ redirectUri: window.location.href });
-        return;
-      }
+  // debug เผื่อใช้
+  console.debug('[AuthGate] payload', payload);
 
-      // 3) ได้โปรไฟล์
-      const profile = await liff.getProfile();
-      const { userId, displayName, pictureUrl } = profile;
-
-      // 4) แนบ inviteCode (ถ้ามี)
-      const inviteCode = getInviteCodeFromURL();
-
-      const res = await fetch(CONFIG.AUTH_FLOW_URL, {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json' },
-        body: JSON.stringify({
-          userId, displayName, pictureUrl: pictureUrl || '',
-          origin: location.origin, inviteCode
-        })
-      });
-      const data = await res.json().catch(()=> ({}));
-      if(!res.ok || !data.ok){ throw new Error(data?.message || 'ไม่ผ่านการยืนยันตัวตน'); }
-
-      // 5) เก็บ session + คาย UI
-      saveSession(data.sessionKey, {
-        userId, displayName, pictureUrl: pictureUrl || '',
-        team: data.team, isAdmin: !!data.isAdmin, expiresAt: data.expiresAt
-      });
-      renderUser(state.user);
-      authNotice?.classList.add('hidden');
-      formSection?.classList.remove('hidden');
-
-      // 6) ล้าง ?invite=
-      try{
-        const url = new URL(location.href);
-        url.searchParams.delete('invite');
-        history.replaceState(null,'',url.toString());
-      }catch{}
-    }catch(err){
-      console.error('[LIFF login error]', err);
-      alert('ล็อกอินล้มเหลว: ' + (err?.message || err));
-    }finally{
-      btn.disabled = false;
-    }
+  const res = await fetch(CONFIG.AUTH_FLOW_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 
-  btnLogout?.addEventListener('click', ()=>{
+  const data = await res.json().catch(() => ({}));
+  console.debug('[AuthGate] response', res.status, data);
+
+  if (!res.ok || !data?.ok) {
+    throw new Error(data?.message || `AuthGate ล้มเหลว (${res.status})`);
+  }
+
+  // เก็บ session
+  persistSession(data.sessionKey, {
+    userId: profile.userId,
+    displayName: profile.displayName,
+    pictureUrl: profile.pictureUrl || '',
+    team: data.team,
+    isAdmin: !!data.isAdmin,
+    expiresAt: data.expiresAt,
+  });
+
+  // ลบ ?invite= ออกจาก URL หลังสำเร็จ (กันสับสนรอบหน้า)
+  try {
+    const url = new URL(location.href);
+    url.searchParams.delete('invite');
+    history.replaceState(null, '', url.toString());
+  } catch {}
+
+  return data;
+}
+
+// ---- flow หลักตอนคลิกปุ่ม หรือ auto-continue ----
+async function doLoginFlow() {
+  if (authInFlight) return;
+  authInFlight = true;
+
+  try {
+    if (!CONFIG.LIFF_ID || CONFIG.LIFF_ID.includes('YOUR_')) {
+      throw new Error('ยังไม่ได้ตั้งค่า LIFF_ID ใน config.js');
+    }
+
+    // 1) init LIFF
+    await liff.init({ liffId: CONFIG.LIFF_ID });
+
+    // 2) ถ้ายังไม่ล็อกอิน ให้ส่งไปหน้า LINE แล้วจบ (จะ redirect กลับหน้าเดิม)
+    if (!liff.isLoggedIn()) {
+      // รักษา query (รวมทั้ง ?invite=) ไว้ด้วย
+      liff.login({ redirectUri: location.href });
+      return;
+    }
+
+    // 3) ได้โปรไฟล์แล้ว ยิง AuthGate
+    const profile = await liff.getProfile();
+    await callAuthGate(profile);
+    renderUser(state.user);
+  } catch (err) {
+    console.error('[LIFF login error]', err);
+    alert('ล็อกอินล้มเหลว: ' + (err?.message || err));
+  } finally {
+    authInFlight = false;
+  }
+}
+
+export async function initAuth() {
+  const btnLogin   = document.getElementById('btnLogin');
+  const btnLogout  = document.getElementById('btnLogout');
+
+  // กู้ session ถ้ามี
+  const restored = restoreSession();
+  if (restored?.user) {
+    renderUser(restored.user);
+  }
+
+  // Auto-continue: ถ้ากลับมาจาก LINE แล้ว ให้ยิง AuthGate ต่อเอง
+  try {
+    if (!CONFIG.LIFF_ID || CONFIG.LIFF_ID.includes('YOUR_')) {
+      throw new Error('ยังไม่ได้ตั้งค่า LIFF_ID ใน config.js');
+    }
+    await liff.init({ liffId: CONFIG.LIFF_ID });
+
+    // กรณียังไม่มี session (ครั้งแรกหลัง redirect) แต่ LINE login แล้ว
+    if (liff.isLoggedIn() && !state.sessionKey) {
+      const profile = await liff.getProfile();
+      await callAuthGate(profile);
+      renderUser(state.user);
+    }
+  } catch (e) {
+    // เงียบไว้ก่อน ให้ผู้ใช้กดปุ่มแทน
+    console.debug('[LIFF init lazy]', e?.message || e);
+  }
+
+  // ปุ่มกดจริง
+  btnLogin?.addEventListener('click', doLoginFlow);
+
+  btnLogout?.addEventListener('click', () => {
     sessionStorage.removeItem('nsb2b.session');
     state.sessionKey = null;
     state.user = null;
-    userCard?.classList.add('hidden');
+
+    document.getElementById('userCard')?.classList.add('hidden');
     document.getElementById('btnLogin')?.classList.remove('hidden');
-    authNotice?.classList.remove('hidden');
-    formSection?.classList.add('hidden');
-    try{ if(liff.isLoggedIn()) liff.logout(); }catch{}
+    document.getElementById('authNotice')?.classList.remove('hidden');
+    document.getElementById('formSection')?.classList.add('hidden');
+
+    try { if (liff.isLoggedIn()) liff.logout(); } catch {}
   });
 }
