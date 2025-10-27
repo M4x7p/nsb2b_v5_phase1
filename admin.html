@@ -1,94 +1,169 @@
 <!doctype html>
-<html lang="th" id="adminPage">
+<html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NSB2B — Admin</title>
-  <link rel="icon" href="./dohome_logo.jpg?v=3">
-  <link rel="stylesheet" href="./styles.css?v=2025-10-26-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NSB2B • Admin</title>
+
+  <!-- ฟอนต์ Prompt ครอบทั้งหน้า -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- สไตล์หลัก -->
+  <link rel="stylesheet" href="./styles.css?v=2025-10-27-1" />
+
+  <!-- Theme/Font override ให้ปุ่มและอินพุตก็ใช้ Prompt -->
+  <style>
+    :root {
+      --brand:#ff6b00;
+      --brand-600:#ff7f26;
+      --border:#eceff3;
+      --muted:#6b7480;
+    }
+    html, body, button, input, select, textarea {
+      font-family:"Prompt", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, Helvetica, Arial !important;
+      letter-spacing:.1px;
+    }
+    body.theme-light{ background:#fff; color:#1d2430; }
+    .header{ background:#fff; border:1px solid var(--border); }
+    .logo{ height:28px; width:auto; border-radius:6px; object-fit:contain; }
+    .title{ font-weight:700; }
+    .card{ background:#fff; }
+    .hint{ color:var(--muted); font-size:.9rem; }
+    .grid-2{
+      display:grid; gap:14px;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+    @media (max-width:720px){ .grid-2{ grid-template-columns:1fr; } }
+
+    /* ปุ่มหลัก/เส้นขอบให้ลุค Prompt ชัดขึ้น */
+    .btn{ font-weight:600; border-radius:10px; }
+    .btn-primary{ background:var(--brand); border-color:var(--brand); }
+    .btn-primary:hover{ background:var(--brand-600); border-color:var(--brand-600); }
+    .btn-outline{ border-color:var(--brand); color:var(--brand); }
+    .btn-outline:hover{ background:#fff3ea; }
+
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .result-box code{ background:#fff6ef; border:1px dashed var(--brand-600); padding:6px 8px; border-radius:8px; display:inline-block; }
+    .result-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  </style>
 </head>
-<body>
-  <div class="container">
+<body class="theme-light">
+  <div class="container" id="adminPage">
+    <!-- Header -->
     <header class="header">
       <div class="brand">
-        <img src="./dohome_logo.jpg?v=3" alt="DoHome" class="logo">
-        <div class="title">NS SMALL B2B / Admin</div>
+        <img src="./dohome_logo.jpg?v=3" alt="DoHome" class="logo" />
+        <div class="title">NSB2B — Admin</div>
       </div>
       <div class="header-actions">
-        <a href="./index.html" class="btn btn-outline">กลับหน้าใช้งาน</a>
+        <a class="btn btn-outline" href="./index.html">กลับหน้าใช้งาน</a>
       </div>
     </header>
 
+    <!-- การออกโค้ดเชิญ -->
     <section class="card">
-      <h2 class="card-title">ออกโค้ดเชิญ (Invite Code)</h2>
+      <h2 class="card-title">ออกโค้ดเชิญ (Invite)</h2>
+      <p class="hint">กรอกข้อมูลด้านล่าง แล้วกด “สร้าง Invite” ระบบจะบันทึกลง Excel/SharePoint ตาม Flow ที่ตั้งค่าไว้</p>
 
-      <div class="form-grid">
-        <div class="field col-3">
-          <label for="team">Team</label>
-          <select id="team">
-            <option value="A">A</option><option value="B">B</option>
-            <option value="C">C</option><option value="D">D</option>
+      <div class="grid-2 mt-3">
+        <div class="form-field">
+          <label for="adminToken">Admin Token</label>
+          <input id="adminToken" type="password" class="input" placeholder="เช่น 072537" autocomplete="off" />
+          <div class="hint">จะถูกส่งใน Header: <span class="mono">X-Admin-Token</span></div>
+        </div>
+
+        <div class="form-field">
+          <label for="team">ทีม / Team</label>
+          <select id="team" class="input">
+            <option value="A">ทีม A</option>
+            <option value="B">ทีม B</option>
+            <option value="C">ทีม C</option>
+            <option value="D">ทีม D</option>
           </select>
         </div>
 
-        <div class="field col-3">
-          <label for="branch">Branch</label>
-          <input id="branch" type="text" placeholder="เช่น NS">
+        <div class="form-field">
+          <label for="branch">สาขา / Branch (ทางเลือก)</label>
+          <input id="branch" type="text" class="input" placeholder="เช่น NS" />
         </div>
 
-        <div class="field col-3">
-          <label for="maxUses">Max uses</label>
-          <input id="maxUses" type="number" min="1" value="1">
+        <div class="form-field">
+          <label for="prefix">Prefix โค้ด</label>
+          <input id="prefix" type="text" class="input" placeholder="เช่น INV-" />
+          <div class="hint">แนะนำให้ตั้งค่าเริ่มต้นแล้วระบบจะจำไว้ (เช่น <span class="mono">INV-</span>)</div>
         </div>
 
-        <div class="field col-3">
-          <label for="expiresInDays">Expires in (days)</label>
-          <input id="expiresInDays" type="number" min="1" value="14">
-        </div>
-
-        <div class="field col-6">
-          <label for="prefix">Prefix</label>
-          <input id="prefix" type="text" value="INV-">
-          <div class="help">ตัวอย่าง: INV-, TEAM-</div>
-        </div>
-
-        <div class="field col-6">
+        <div class="form-field">
           <label for="baseWebUrl">Base Web URL</label>
-          <input id="baseWebUrl" type="text" value="https://m4x7p.github.io/nsb2b_v5_phase1/">
-          <div class="help">เช่น https://m4x7p.github.io/nsb2b_v5_phase1/</div>
+          <input id="baseWebUrl" type="url" class="input" placeholder="เช่น https://m4x7p.github.io/nsb2b_v5_phase1/" />
+          <div class="hint">ใช้สร้างลิงก์เชิญอัตโนมัติ (แนบ <span class="mono">?invite=CODE</span>)</div>
         </div>
 
-        <div class="field col-6">
-          <label for="adminToken">Admin token</label>
-          <input id="adminToken" type="password" placeholder="ใส่รหัสสำหรับออกโค้ด">
-          <div class="help">ต้องตรงกับที่ตั้งใน Flow (header: X-Admin-Token)</div>
+        <div class="form-field">
+          <label for="maxUses">จำนวนครั้งที่ใช้ได้</label>
+          <input id="maxUses" type="number" class="input" min="1" step="1" value="1" />
         </div>
 
-        <div class="field col-6">
-          <label for="notes">Notes</label>
-          <input id="notes" type="text" placeholder="บันทึกเพิ่มเติม (ไม่บังคับ)">
+        <div class="form-field">
+          <label for="expiresInDays">อายุโค้ด (วัน)</label>
+          <input id="expiresInDays" type="number" class="input" min="1" step="1" value="14" />
         </div>
       </div>
 
-      <div class="mt-4">
-        <button id="btnCreateInvite" class="btn btn-primary full-sm">สร้าง Invite</button>
+      <div class="mt-4" style="display:flex;gap:10px;flex-wrap:wrap">
+        <button id="btnCreateInvite" class="btn btn-primary">สร้าง Invite</button>
+        <a class="btn btn-outline" href="./InviteCodes.xlsx" target="_blank" rel="noopener">เปิดไฟล์ InviteCodes.xlsx</a>
       </div>
     </section>
 
-    <section id="resultBox" class="card hidden">
+    <!-- ผลลัพธ์การสร้างโค้ด -->
+    <section id="resultBox" class="card hidden result-box">
       <h2 class="card-title">ผลลัพธ์</h2>
-      <p class="mb-4"><strong>Invite Code:</strong> <span id="resultCode">-</span></p>
 
-      <div id="inviteUrlWrap" class="hidden">
-        <div class="field">
-          <label>Invite URL</label>
-          <a id="resultLink" href="#" target="_blank" rel="noopener noreferrer"></a>
+      <div class="form-field">
+        <label>Invite Code</label>
+        <div><code id="resultCode" class="mono">-</code></div>
+      </div>
+
+      <div id="inviteUrl" class="form-field hidden">
+        <label>Invite URL</label>
+        <div class="result-row">
+          <a id="resultLink" href="#" target="_blank" rel="noopener" class="mono">-</a>
+          <button id="btnCopyLink" class="btn btn-outline" type="button">คัดลอกลิงก์</button>
+          <span id="copyStatus" class="hint" aria-live="polite"></span>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- โหลดผ่านโมดูลเดียว -->
-  <script type="module" src="./app.js?v=2025-10-26-8"></script>
+  <!-- สคริปต์หลักของหน้า Admin -->
+  <script type="module" src="./app.js?v=2025-10-27-1"></script>
+
+  <!-- ปุ่มคัดลอกลิงก์ (เสริมเล็กน้อย แยกจาก app.js เพื่อไม่รบกวนลอจิกเดิม) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const linkEl = document.getElementById('resultLink');
+      const btnCopy = document.getElementById('btnCopyLink');
+      const statusEl = document.getElementById('copyStatus');
+
+      function showStatus(msg){
+        if (!statusEl) return;
+        statusEl.textContent = msg || '';
+        clearTimeout(showStatus._t);
+        showStatus._t = setTimeout(()=> statusEl.textContent = '', 2000);
+      }
+
+      btnCopy?.addEventListener('click', async () => {
+        try{
+          const url = linkEl?.href || '';
+          if (!url || url === '#' ) { showStatus('ยังไม่มีลิงก์ให้คัดลอก'); return; }
+          await navigator.clipboard.writeText(url);
+          showStatus('คัดลอกลิงก์แล้ว');
+        }catch(e){
+          showStatus('คัดลอกไม่สำเร็จ');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
