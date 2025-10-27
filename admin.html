@@ -8,10 +8,10 @@
   <!-- ฟอนต์ Prompt ครอบทั้งหน้า -->
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- สไตล์หลัก -->
-  <link rel="stylesheet" href="./styles.css?v=2025-10-27-2" />
+  <!-- สไตล์หลัก (ของคุณเดิม) -->
+  <link rel="stylesheet" href="./styles.css?v=2025-10-27-3" />
 
-  <!-- Theme/Font override ให้ปุ่มและอินพุตก็ใช้ Prompt -->
+  <!-- Theme/Font override ให้ปุ่มและอินพุตก็ใช้ Prompt (คงไว้ตามเดิม) -->
   <style>
     :root {
       --brand:#ff6b00;
@@ -111,7 +111,6 @@
 
       <div class="mt-4" style="display:flex;gap:10px;flex-wrap:wrap">
         <button id="btnCreateInvite" class="btn btn-primary">สร้าง Invite</button>
-        <!-- แก้จากลิงก์เปิดไฟล์ เป็น “คัดลอกลิงก์” ตามที่สั่ง -->
         <button id="btnCopyTop" class="btn btn-outline" type="button">คัดลอกลิงก์</button>
       </div>
     </section>
@@ -121,12 +120,17 @@
       <h2 class="card-title">ผลลัพธ์</h2>
 
       <div class="form-field">
-        <label>Invite Code</label>
-        <div><code id="resultCode" class="mono">-</code></div>
+        <label>Team</label>
+        <div><code id="resultTeam" class="mono">-</code></div>
+      </div>
+
+      <div class="form-field">
+        <label>Expired Code</label>
+        <div><code id="resultExpire" class="mono">-</code></div>
       </div>
 
       <div id="inviteUrl" class="form-field hidden">
-        <label>Invite URL</label>
+        <label>Invite link</label>
         <div class="result-row">
           <a id="resultLink" href="#" target="_blank" rel="noopener" class="mono">-</a>
           <button id="btnCopyLink" class="btn btn-outline" type="button">คัดลอกลิงก์</button>
@@ -137,7 +141,7 @@
   </div>
 
   <!-- สคริปต์หลักของหน้า Admin -->
-  <script type="module" src="./app.js?v=2025-10-27-2"></script>
+  <script type="module" src="./app.js?v=2025-10-27-3"></script>
 
   <!-- สคริปต์เล็ก ๆ สำหรับปุ่มคัดลอก (ทั้งปุ่มบนและในผลลัพธ์) -->
   <script>
@@ -151,7 +155,6 @@
         try {
           const url = linkEl?.href || '';
           if (!url || url === '#') {
-            // ยังไม่มีลิงก์ให้คัดลอก
             toast('ยังไม่มีลิงก์ให้คัดลอก');
             return;
           }
@@ -168,7 +171,6 @@
           clearTimeout(toast._t);
           toast._t = setTimeout(() => statusEl.textContent = '', 2000);
         } else {
-          // กันกรณีไม่มี statusEl ก็ยังแจ้งเตือนด้วย alert ได้
           if (msg) alert(msg);
         }
       }
